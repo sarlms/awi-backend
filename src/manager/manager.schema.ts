@@ -5,22 +5,19 @@ export type ManagerDocument = Manager & Document;
 
 @Schema()
 export class Manager {
-  @Prop({ required: true, unique: true })
-  managerId: string;
-
   @Prop({ required: true })
   name: string;
 
   @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true })
+  @Prop()
   phone: string;
 
-  @Prop({ required: true })
+  @Prop()
   address: string;
 
-  @Prop({required: true, default: false })
+  @Prop({ default: false })
   admin: boolean;
 }
 

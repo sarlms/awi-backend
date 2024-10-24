@@ -5,9 +5,6 @@ export type SellerDocument = Seller & Document;
 
 @Schema()
 export class Seller {
-  @Prop({ required: true, unique: true })
-  sellerId: string;
-
   @Prop({ required: true })
   name: string;
 
