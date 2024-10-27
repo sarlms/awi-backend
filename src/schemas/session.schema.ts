@@ -15,14 +15,15 @@ export class Session {
   description?: string;
 
   @Prop({ required: true })
-  startDate: Date; 
-  // format ISO : YYYY-MM-DDTHH:MM:SSZ
+  startDate: Date;
+  // la date est de type Date, format ISO : YYYY-MM-DDTHH:MM:SSZ
   //Exemple : 2024-10-24T14:30:00Z (24 octobre 2024 à 14h30 UTC)
   //T sert de séparateur entre la date et l'heure
   //Z signifie qu'on est bien en UTC (universal time convention)
 
+
   @Prop({ required: true })
-  endDate: string;
+  endDate: Date;
 
   @Prop({ required: true })
   depositFee: number;
@@ -37,7 +38,7 @@ export class Session {
   saleComission: number;
 
   @Prop({ type: Types.ObjectId, ref: 'Manager', required: true })
-  managerId: Types.ObjectId; // Référence vers l'ID du manager (clé étrangère)
+  managerId: Types.ObjectId;
 }
 
 export const SessionSchema = SchemaFactory.createForClass(Session);

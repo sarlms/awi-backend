@@ -1,30 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Session, SessionDocument } from './session.schema';
+import { Session } from '../schemas/session.schema';
+import { CreateSessionDto } from './dto/create-session.dto';
+import { UpdateSessionDto } from './dto/update-session.dto';
 
 @Injectable()
 export class SessionService {
-  constructor(@InjectModel(Session.name) private sessionModel: Model<SessionDocument>) {}
+  constructor(@InjectModel(Session.name) private sessionModel: Model<Session>) {}
 
-  async create(createSessionDto: any): Promise<Session> {
+  async create(createSessionDto: CreateSessionDto): Promise<Session> {
     const createdSession = new this.sessionModel(createSessionDto);
     return createdSession.save();
   }
 
-  async findAll(): Promise<Session[]> {
-    return this.sessionModel.find().exec();
+  async findOne(id: string): Promise<Session> {
+    return this.sessionModel.findById(id).exec();
   }
 
-  async findById(id: string): Promise<Session> {
-    return this.sessionModel.findById(id).populate('managerId').exec(); // Populate pour récupérer les détails du manager
-  }
-
-  async update(id: string, updateSessionDto: any): Promise<Session> {
+  async update(id: string, updateSessionDto: UpdateSessionDto): Promise<Session> {
     return this.sessionModel.findByIdAndUpdate(id, updateSessionDto, { new: true }).exec();
   }
 
-  async delete(id: string): Promise<any> {
+  async remove(id: string): Promise<Session> {
     return this.sessionModel.findByIdAndDelete(id).exec();
   }
 }
