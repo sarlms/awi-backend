@@ -1,15 +1,27 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ClientModule } from './client/client.module';
-import { SessionModule } from './session/session.module';
-import { SellerModule } from './seller/seller.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { ManagerController } from './manager/manager.controller';
+import { ManagerService } from './manager/manager.service';
+import { Manager, ManagerSchema } from './schemas/manager.schema';
+
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://<username>:<password>@cluster0.mongodb.net/mydatabase'),
-    ClientModule,
-    SessionModule,
-    SellerModule,
+    MongooseModule.forRoot(process.env.MONGODB_URI),
+    MongooseModule.forFeature([{ name: Manager.name, schema: ManagerSchema }]),
+
+  ],
+  controllers: [
+    ManagerController,
+
+  ],
+  providers: [
+    ManagerService,
   ],
 })
 export class AppModule {}
