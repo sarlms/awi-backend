@@ -3,7 +3,7 @@ import { DepositedGameService } from './depositedGame.service';
 import { CreateDepositedGameDto } from './dto/create-depositedGame.dto';
 import { UpdateDepositedGameDto } from './dto/update-depositedGame.dto';
 
-@Controller('deposited-game')
+@Controller('depositedGame')
 export class DepositedGameController {
   constructor(private readonly depositedGameService: DepositedGameService) {}
 
