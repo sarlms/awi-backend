@@ -1,28 +1,47 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Manager } from '../schemas/manager.schema';
-import { CreateManagerDto } from './dto/create-manager.dto';
-import { UpdateManagerDto } from './dto/update-manager.dto';
+import { FilterQuery, Model } from 'mongoose';
+import { Manager, ManagerDocument } from '../schemas/manager.schema';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class ManagerService {
-  constructor(@InjectModel(Manager.name) private managerModel: Model<Manager>) {}
+  private readonly logger: Logger;
 
-  async create(createManagerDto: CreateManagerDto): Promise<Manager> {
-    const createdManager = new this.managerModel(createManagerDto);
-    return createdManager.save();
+  constructor(
+    @InjectModel(Manager.name) private managerModel: Model<ManagerDocument>,
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService
+  ) {
+    this.logger = new Logger(ManagerService.name);
   }
 
-  async findOne(id: string): Promise<Manager> {
-    return this.managerModel.findById(id).exec();
+  async findOne(query: FilterQuery<Manager>): Promise<ManagerDocument | null> {
+    return await this.managerModel.findOne(query).select('+password');
   }
 
-  async update(id: string, updateManagerDto: UpdateManagerDto): Promise<Manager> {
-    return this.managerModel.findByIdAndUpdate(id, updateManagerDto, { new: true }).exec();
+  async create(manager: Partial<Manager>): Promise<ManagerDocument> {
+    this.logger.log('Creating manager.');
+
+    // Hasher le mot de passe avant la création
+    const hashedPassword = await this.authService.getHashedPassword(manager.password);
+    manager.password = hashedPassword;
+
+    // Créer et sauvegarder un nouveau manager
+    const newManager = new this.managerModel(manager);
+    return newManager.save();
   }
 
-  async remove(id: string): Promise<Manager> {
-    return this.managerModel.findByIdAndDelete(id).exec();
+  async findOneAndUpdate(query: FilterQuery<Manager>, payload: Partial<Manager>): Promise<ManagerDocument | null> {
+    this.logger.log('Updating Manager.');
+    return this.managerModel.findOneAndUpdate(query, payload, {
+      new: true,
+      upsert: true,
+    });
+  }
+
+  async findOneAndDelete(query: FilterQuery<Manager>): Promise<ManagerDocument | null> {
+    this.logger.log('Deleting Manager.');
+    return this.managerModel.findOneAndDelete(query);
   }
 }

@@ -1,9 +1,15 @@
+// dto/create-manager.dto.ts
+
 import { IsString, IsEmail, IsNotEmpty, IsBoolean } from 'class-validator';
 
 export class CreateManagerDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  firstName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
 
   @IsEmail()
   @IsNotEmpty()
@@ -17,7 +23,10 @@ export class CreateManagerDto {
   @IsNotEmpty()
   address: string;
 
-  @IsBoolean()
+  @IsString()
   @IsNotEmpty()
+  password: string;  // Mot de passe obligatoire
+
+  @IsBoolean()
   admin: boolean = false;
 }

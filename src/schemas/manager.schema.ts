@@ -2,21 +2,29 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 @Schema()
-export class Manager extends Document {
-  @Prop({ required: true })
-  name: string;
+export class Manager {
+  @Prop()
+  firstName: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop()
+  lastName: string;
+
+  @Prop({ lowercase: true, unique: true })
   email: string;
 
-  @Prop({ required: true })
+  @Prop()
   phone: string;
 
-  @Prop({ required: true })
+  @Prop()
   address: string;
 
-  @Prop({ required: true, default: false })
+  @Prop({ select: false })
+  password: string;
+
+  @Prop({ default: false })
   admin: boolean;
 }
+
+export type ManagerDocument = Manager & Document;
 
 export const ManagerSchema = SchemaFactory.createForClass(Manager);
