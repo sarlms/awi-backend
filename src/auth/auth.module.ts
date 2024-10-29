@@ -9,15 +9,30 @@ import { ManagerModule } from '../manager/manager.module';
 
 @Module({
   imports: [
+    // Configure JwtModule to enable JWT-based authentication
     JwtModule.register({
-      secret: 'JWT_SECRET',
-      signOptions: { expiresIn: '3000s' },
+      secret: 'JWT_SECRET',  // Secret key used to sign tokens. Replace this with an environment variable for security
+      signOptions: { expiresIn: '3000s' },  // Token expiration time set to 3000 seconds (or 50 minutes)
     }),
+    
+    // Import ManagerModule with forwardRef to handle circular dependencies
     forwardRef(() => ManagerModule),
+    
+    // Enable PassportModule to support different authentication strategies
     PassportModule,
   ],
+  
+  // AuthController handles authentication routes, such as login
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
+  
+  // Providers include AuthService and authentication strategies
+  providers: [
+    AuthService,   // AuthService contains logic for authenticating users and generating tokens
+    JwtStrategy,   // JwtStrategy validates JWT tokens for secured routes
+    LocalStrategy, // LocalStrategy validates user credentials during login
+  ],
+  
+  // Exports AuthService to make authentication utilities available to other modules
   exports: [AuthService],
 })
 export class AuthModule {}
