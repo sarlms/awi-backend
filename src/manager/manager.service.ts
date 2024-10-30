@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { Manager, ManagerDocument } from '../schemas/manager.schema';
 import { AuthService } from '../auth/auth.service';
+import { UpdateManagerDto } from './dto/update-manager.dto';
 
 @Injectable()
 export class ManagerService {
@@ -34,6 +35,10 @@ export class ManagerService {
     return newManager.save();
   }
 
+  async findAll(): Promise<ManagerDocument[]> {
+    return await this.managerModel.find();
+  }
+
   // Finds a manager and updates them with new information
   async findOneAndUpdate(query: FilterQuery<Manager>, payload: Partial<Manager>): Promise<ManagerDocument | null> {
     this.logger.log('Updating Manager.');
@@ -47,5 +52,17 @@ export class ManagerService {
   async findOneAndDelete(query: FilterQuery<Manager>): Promise<ManagerDocument | null> {
     this.logger.log('Deleting Manager.');
     return this.managerModel.findOneAndDelete(query);
+  }
+
+  // Méthode pour mettre à jour un manager par ID
+  async update(id: string, updateManagerDto: UpdateManagerDto): Promise<ManagerDocument | null> {
+    return await this.managerModel.findByIdAndUpdate(id, updateManagerDto, {
+      new: true, // Retourne le document mis à jour
+    });
+  }
+
+  // Méthode pour supprimer un manager par ID
+  async delete(id: string): Promise<ManagerDocument | null> {
+    return await this.managerModel.findByIdAndDelete(id);
   }
 }

@@ -1,4 +1,23 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateManagerDto } from './create-manager.dto';
+import { IsOptional, IsString, IsEmail } from 'class-validator';
 
-export class UpdateManagerDto extends PartialType(CreateManagerDto) {}
+export class UpdateManagerDto {
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+}

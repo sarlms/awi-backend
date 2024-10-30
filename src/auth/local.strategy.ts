@@ -26,5 +26,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     this.logger.log(`Manager logged in successfully: ${email}`);
     return manager; // The authenticated manager is returned here
   }
-  
+
+
 }
