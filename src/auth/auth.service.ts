@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  forwardRef,
-  Inject,
-  UnauthorizedException,
-  NotFoundException,
-} from '@nestjs/common';
+import {Injectable,forwardRef,Inject,UnauthorizedException,NotFoundException,} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';  // Import bcrypt for password hashing and comparison
 import { JwtService } from '@nestjs/jwt';  // Import JwtService to handle JWT token generation
 import { ManagerService } from '../manager/manager.service';  // Import ManagerService to interact with manager data
@@ -54,6 +48,14 @@ async generateJwtToken(loginDto: LoginDto): Promise<string> {
 
   // Generate and return a JWT token containing both email and ID in the payload
   return this.jwtService.sign({ id: manager._id, email: manager.email });
+}
+
+ // Nouvelle méthode pour récupérer le profil du manager par ID
+ async getManagerProfileById(managerId: string): Promise<any> {
+  const manager = await this.managerService.findOne({ _id: managerId });
+  if (!manager) throw new NotFoundException('Manager not found');
+  const { password, ...safeData } = manager.toObject();
+  return safeData;
 }
 
   // Method to hash a plain-text password for secure storage
