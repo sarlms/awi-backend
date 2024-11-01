@@ -18,6 +18,7 @@ import { ManagerService } from './manager.service';
 import { Request } from 'express';
 import { ProfileDto } from './dto/profile.dto';
 import { UpdateManagerDto } from './dto/update-manager.dto';
+import { AdminGuard } from 'src/guards/admin.guard';
 
 @Controller('manager')
 export class ManagerController {
@@ -27,7 +28,8 @@ export class ManagerController {
     this.logger = new Logger(ManagerController.name);
   }
 
-  // Route for creating a new manager
+  // Route for creating a new manager (reserved for admins)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Post('create')
   async create(@Req() req): Promise<any> {
     const newManager = req.body;
@@ -68,8 +70,8 @@ export class ManagerController {
     };
   }
 
-  // Route for retrieving a manager by ID
-  @UseGuards(JwtAuthGuard)
+  // Route for retrieving a manager by ID (reserved for admins)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get(':id')
   async getById(@Param('id') id: string): Promise<ProfileDto> {
     const manager = await this.managerService.findOne({ _id: id });
@@ -85,8 +87,8 @@ export class ManagerController {
     };
   }
 
-  // Route for retrieving all managers
-  @UseGuards(JwtAuthGuard)
+  // Route for retrieving all managers (reserved for admins)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
   async getAll(): Promise<ProfileDto[]> {
     const managers = await this.managerService.findAll();
@@ -99,26 +101,17 @@ export class ManagerController {
   }
 
   // Route pour mettre à jour un manager par ID (réservée aux administrateurs)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Patch(':id')
   async updateManager(
     @Param('id') id: string,
-    @Req() req: Request,
     @Body() updateManagerDto: UpdateManagerDto,
   ): Promise<ProfileDto> {
-    // Vérifie si le manager connecté est un administrateur
-    const requestingManager = await this.managerService.findOne({ _id: req.user.id });
-    if (!requestingManager?.admin) {
-      throw new ForbiddenException('Only administrators can update managers');
-    }
-
-    // Effectue la mise à jour du manager
     const updatedManager = await this.managerService.update(id, updateManagerDto);
     if (!updatedManager) {
       throw new NotFoundException('Manager not found');
     }
 
-    // Retourne le profil mis à jour
     return {
       id: updatedManager._id.toString(),
       email: updatedManager.email,
@@ -128,16 +121,9 @@ export class ManagerController {
   }
 
   // Route pour supprimer un manager par ID (réservée aux administrateurs)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':id')
-  async deleteManager(@Param('id') id: string, @Req() req: Request): Promise<{ message: string }> {
-    // Vérifier si le manager connecté est un administrateur
-    const requestingManager = await this.managerService.findOne({ _id: req.user.id });
-    if (!requestingManager?.admin) {
-      throw new ForbiddenException('Only administrators can delete managers');
-    }
-
-    // Supprimer le manager
+  async deleteManager(@Param('id') id: string): Promise<{ message: string }> {
     const deletedManager = await this.managerService.delete(id);
     if (!deletedManager) {
       throw new NotFoundException('Manager not found');
@@ -146,3 +132,4 @@ export class ManagerController {
     return { message: 'Manager successfully deleted' };
   }
 }
+

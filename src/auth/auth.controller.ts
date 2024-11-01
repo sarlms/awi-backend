@@ -14,12 +14,11 @@ export class AuthController {
     private readonly managerService: ManagerService, // ManagerService handles operations related to the Manager entity, such as finding or creating a manager
   ) {}
 
-  @UseGuards(LocalAuthGuard) // Protects the 'login' route with LocalAuthGuard, which checks the user's credentials
-  @Post('login') // Defines the route as a POST request at '/auth/login'
+  // Dans votre AuthController
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    // This method expects a LoginDto object from the request body, which contains login credentials
-
-    // Calls the generateJwtToken method in AuthService to create a JWT token for the user based on their credentials
-    return this.authService.generateJwtToken(loginDto);
+    const token = await this.authService.generateJwtToken(loginDto);
+    return { token }; // Renvoie un objet contenant le token
   }
 }

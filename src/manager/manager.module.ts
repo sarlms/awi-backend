@@ -4,6 +4,8 @@ import { AuthModule } from '../auth/auth.module';
 import { Manager, ManagerSchema } from '../schemas/manager.schema'; // Ensure the Manager schema is correctly imported
 import { ManagerController } from './manager.controller';
 import { ManagerService } from './manager.service';
+import { AdminGuard } from 'src/guards/admin.guard';
+
 
 @Module({
   imports: [
@@ -18,7 +20,7 @@ import { ManagerService } from './manager.service';
   controllers: [ManagerController],
 
   // Define the services provided by this module, available within the module itself
-  providers: [ManagerService],
+  providers: [ManagerService, AdminGuard],
 
   // Export the ManagerService to make it accessible to other modules, such as AuthModule
   exports: [ManagerService],
