@@ -1,4 +1,4 @@
-import { IsString, IsUrl, IsNotEmpty, IsNumber, IsEnum } from 'class-validator';
+import { IsString, IsUrl, IsNotEmpty, IsNumber, IsEnum, Min} from 'class-validator';
 
 //il faudra en ajouter d'autres !!
 export enum AgeRange {
@@ -27,10 +27,16 @@ export class CreateGameDescriptionDto {
   photoURL: string;
 
   @IsNumber()
+  @Min(1)
   @IsNotEmpty()
-  numberOfPlayers: number;
+  minPlayers: number;
 
-  @IsEnum(AgeRange)
+  @IsNumber()
+  @Min(1)
+  @IsNotEmpty()
+  maxPlayers: number;
+
+  @IsEnum(AgeRange, { message: 'Invalid age range provided' })
   @IsNotEmpty()
   ageRange: AgeRange;
 }

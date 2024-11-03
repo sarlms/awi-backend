@@ -12,9 +12,19 @@ export class SessionController {
     return this.sessionService.create(createSessionDto);
   }
 
+  @Get()
+  async findAll() {
+    return this.sessionService.findAll();
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.sessionService.findOne(id);
+  }
+
+  @Get('name/:name')
+  async findByName(@Param('name') name: string) {
+    return this.sessionService.findByName(name);
   }
 
   @Put(':id')
@@ -22,8 +32,18 @@ export class SessionController {
     return this.sessionService.update(id, updateSessionDto);
   }
 
+  @Put('name/:name')
+  async updateByName(@Param('name') name: string, @Body() updateSessionDto: UpdateSessionDto) {
+    return this.sessionService.updateByName(name, updateSessionDto);
+  }
+
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.sessionService.remove(id);
+  }
+
+  @Delete('name/:name')
+  async removeByName(@Param('name') name: string) {
+    return this.sessionService.removeByName(name);
   }
 }

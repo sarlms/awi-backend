@@ -17,6 +17,16 @@ export class GameDescriptionController {
     return this.gameDescriptionService.findOne(id);
   }
 
+  @Get('name/:name')
+  async findByName(@Param('name') name: string) {
+    return this.gameDescriptionService.findByName(name);
+  }
+
+  @Get()
+  async findAll() {
+    return this.gameDescriptionService.findAll();
+  }
+
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateGameDescriptionDto: UpdateGameDescriptionDto) {
     return this.gameDescriptionService.update(id, updateGameDescriptionDto);

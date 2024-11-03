@@ -7,7 +7,14 @@ import { ManagerService } from './manager/manager.service';
 import { Manager, ManagerSchema } from './schemas/manager.schema';
 import { ManagerModule } from './manager/manager.module';
 import { AuthModule } from './auth/auth.module';
+import { GameDescriptionModule } from './gameDescription/gameDescription.module';
+import { SellerModule } from './seller/seller.module';
+import { SessionModule } from './session/session.module';
+import { DepositedGameModule } from './depositedGame/depositedGame.module';
+import { DepositFeePaymentModule } from './depositFeePayment/depositFeePayment.module';
+
 import * as dotenv from 'dotenv';
+import { RefundModule } from './refund/refund.module';
 
 dotenv.config();
 
@@ -17,6 +24,12 @@ dotenv.config();
     MongooseModule.forFeature([{ name: Manager.name, schema: ManagerSchema }]),
     AuthModule,
     ManagerModule,
+    GameDescriptionModule,
+    SellerModule,
+    SessionModule,
+    DepositedGameModule,
+    DepositFeePaymentModule,
+    RefundModule,
 
   ],
   controllers: [

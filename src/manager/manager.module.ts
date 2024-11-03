@@ -4,7 +4,7 @@ import { AuthModule } from '../auth/auth.module';
 import { Manager, ManagerSchema } from '../schemas/manager.schema'; // Ensure the Manager schema is correctly imported
 import { ManagerController } from './manager.controller';
 import { ManagerService } from './manager.service';
-import { AdminGuard } from 'src/guards/admin.guard';
+import { AdminGuard } from '../guards/admin.guard';
 
 
 @Module({
@@ -23,6 +23,6 @@ import { AdminGuard } from 'src/guards/admin.guard';
   providers: [ManagerService, AdminGuard],
 
   // Export the ManagerService to make it accessible to other modules, such as AuthModule
-  exports: [ManagerService],
+  exports: [ManagerService, MongooseModule],
 })
 export class ManagerModule {}

@@ -1,8 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+
+export type SellerDocument = Seller & Document;
 
 @Schema()
-export class Seller extends Document {
+export class Seller {
   @Prop({ required: true })
   name: string;
 
@@ -12,7 +14,7 @@ export class Seller extends Document {
   @Prop({ required: true })
   phone: string;
 
-  @Prop({ required: true, default: 0 })
+  @Prop({ default: 0 }) // Définit le montant dû à zéro par défaut
   amountOwed: number;
 }
 

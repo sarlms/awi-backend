@@ -12,9 +12,19 @@ export class SellerController {
     return this.sellerService.create(createSellerDto);
   }
 
+  @Get()
+  async findAll() {
+    return this.sellerService.findAll();
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.sellerService.findOne(id);
+  }
+
+  @Get('email/:email')
+  async findByEmail(@Param('email') email: string) {
+    return this.sellerService.findByEmail(email);
   }
 
   @Put(':id')
@@ -22,8 +32,18 @@ export class SellerController {
     return this.sellerService.update(id, updateSellerDto);
   }
 
+  @Put('email/:email')
+  async updateByEmail(@Param('email') email: string, @Body() updateSellerDto: UpdateSellerDto) {
+    return this.sellerService.updateByEmail(email, updateSellerDto);
+  }
+
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.sellerService.remove(id);
+  }
+
+  @Delete('email/:email')
+  async removeByEmail(@Param('email') email: string) {
+    return this.sellerService.removeByEmail(email);
   }
 }

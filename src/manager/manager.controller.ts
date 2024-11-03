@@ -18,7 +18,7 @@ import { ManagerService } from './manager.service';
 import { Request } from 'express';
 import { ProfileDto } from './dto/profile.dto';
 import { UpdateManagerDto } from './dto/update-manager.dto';
-import { AdminGuard } from 'src/guards/admin.guard';
+import { AdminGuard } from '../guards/admin.guard';
 
 @Controller('manager')
 export class ManagerController {
@@ -49,7 +49,7 @@ export class ManagerController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  async getProfile(@Req() req: Request): Promise<ProfileDto> {
+  async getProfile(@Req() req: Request & { user: { id: string } }): Promise<ProfileDto> {
     const managerId = req.user.id;
     this.logger.log(`Manager ID from JWT payload: ${managerId}`);
 

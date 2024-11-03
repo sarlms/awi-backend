@@ -13,7 +13,7 @@ export class Refund extends Document {
   managerId: Types.ObjectId;
 
   @Prop({ required: true })
-  refund: number;
+  refundAmount: number;
 
   @Prop({ required: true })
   refundDate: Date;

@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsNotEmpty } from 'class-validator';
+import { IsBoolean, IsNumber, IsNotEmpty, IsMongoId } from 'class-validator';
 
 export class CreateDepositedGameDto {
   @IsNumber()
@@ -16,4 +16,16 @@ export class CreateDepositedGameDto {
   @IsBoolean()
   @IsNotEmpty()
   pickedUp: boolean;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  sessionId: string;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  sellerId: string;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  gameDescriptionId: string;
 }

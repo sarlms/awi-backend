@@ -1,0 +1,4 @@
+name,location,description,startDate,endDate,depositFee,depositFeeLimitBeforeDiscount,depositFeeDiscount,saleComission,managerId
+Session 1,Location A,"Description for session 1",2024-01-01,2024-01-15,10,30,5,20,managerId1
+Session 2,Location B,"Description for session 2",2024-02-01,2024-02-15,15,30,10,25,managerId2
+Session 3,Location C,"Description for session 3",2024-03-01,2024-03-15,12,30,8,18,managerId3

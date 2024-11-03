@@ -8,5 +8,6 @@ import { GameDescription, GameDescriptionSchema } from '../schemas/gameDescripti
   imports: [MongooseModule.forFeature([{ name: GameDescription.name, schema: GameDescriptionSchema }])],
   controllers: [GameDescriptionController],
   providers: [GameDescriptionService],
+  exports: [MongooseModule],
 })
 export class GameDescriptionModule {}

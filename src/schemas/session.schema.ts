@@ -5,7 +5,7 @@ export type SessionDocument = Session & Document;
 
 @Schema()
 export class Session {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })  // Unique session name
   name: string;
 
   @Prop({ required: true })
@@ -16,11 +16,6 @@ export class Session {
 
   @Prop({ required: true })
   startDate: Date;
-  // la date est de type Date, format ISO : YYYY-MM-DDTHH:MM:SSZ
-  //Exemple : 2024-10-24T14:30:00Z (24 octobre 2024 à 14h30 UTC)
-  //T sert de séparateur entre la date et l'heure
-  //Z signifie qu'on est bien en UTC (universal time convention)
-
 
   @Prop({ required: true })
   endDate: Date;
@@ -42,3 +37,21 @@ export class Session {
 }
 
 export const SessionSchema = SchemaFactory.createForClass(Session);
+
+// Middleware to prevent overlapping sessions
+SessionSchema.pre('save', async function (next) {
+  const session = this as SessionDocument;
+
+  // Utilisation de this.model pour accéder au modèle Mongoose
+  const overlappingSession = await this.model('Session').findOne({
+    $or: [
+      { startDate: { $lt: session.endDate }, endDate: { $gt: session.startDate } }
+    ],
+  });
+
+  if (overlappingSession) {
+    const error = new Error('Session dates overlap with an existing session');
+    return next(error);
+  }
+  next();
+});

@@ -8,5 +8,6 @@ import { Seller, SellerSchema } from '../schemas/seller.schema';
   imports: [MongooseModule.forFeature([{ name: Seller.name, schema: SellerSchema }])],
   controllers: [SellerController],
   providers: [SellerService],
+  exports: [MongooseModule],
 })
 export class SellerModule {}

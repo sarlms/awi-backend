@@ -23,7 +23,7 @@ export class AuthController {
   // Route pour récupérer le profil du manager
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  async getProfile(@Req() req: Request) {
+  async getProfile(@Req() req: Request & { user: { id: string; email: string } }) {
     // Le JWT fournit le champ `user` avec les détails nécessaires
     const userId = req.user['id'];
     if (!userId) throw new NotFoundException('Manager ID not found in token payload');

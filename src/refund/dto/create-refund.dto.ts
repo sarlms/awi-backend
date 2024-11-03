@@ -13,7 +13,7 @@ export class CreateRefundDto {
 
   @IsNumber()
   @IsNotEmpty()
-  refund: number;
+  refundAmount: number;
 
   @IsDate()
   @IsNotEmpty()
