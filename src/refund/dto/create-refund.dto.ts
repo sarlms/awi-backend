@@ -3,13 +3,13 @@ import { Types } from 'mongoose';
 
 export class CreateRefundDto {
   @IsNotEmpty()
-  sellerId: Types.ObjectId;
+  sellerId: string | Types.ObjectId;
 
   @IsNotEmpty()
-  sessionId: Types.ObjectId;
+  sessionId: string | Types.ObjectId;
 
   @IsNotEmpty()
-  managerId: Types.ObjectId;
+  managerId: string | Types.ObjectId;
 
   @IsNumber()
   @IsNotEmpty()

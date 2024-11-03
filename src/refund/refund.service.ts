@@ -8,6 +8,7 @@ import { Seller } from '../schemas/seller.schema';
 import { Session } from '../schemas/session.schema';
 import { Manager } from '../schemas/manager.schema';
 
+
 @Injectable()
 export class RefundService {
   constructor(
@@ -32,12 +33,19 @@ export class RefundService {
     if (!manager) throw new NotFoundException('Manager not found');
   }
 
-  // Méthode de création avec validation des clés étrangères
-  async create(createRefundDto: CreateRefundDto, managerId: string): Promise<Refund> {
-    await this.validateForeignKeys(createRefundDto.sellerId, createRefundDto.sessionId, managerId);
+async create(createRefundDto: CreateRefundDto, managerId: string): Promise<Refund> {
+    // Convertit les IDs en ObjectId si ce sont des chaînes de caractères
+    const sellerId = typeof createRefundDto.sellerId === 'string' ? new Types.ObjectId(createRefundDto.sellerId) : createRefundDto.sellerId;
+    const sessionId = typeof createRefundDto.sessionId === 'string' ? new Types.ObjectId(createRefundDto.sessionId) : createRefundDto.sessionId;
+    const managerObjectId = typeof managerId === 'string' ? new Types.ObjectId(managerId) : managerId;
 
-    const createdRefund = new this.refundModel({ ...createRefundDto, managerId });
-    return createdRefund.save();
+    // Crée le remboursement avec les ObjectId
+    return this.refundModel.create({
+      ...createRefundDto,
+      sellerId,
+      sessionId,
+      managerId: managerObjectId,
+    });
   }
 
   // Méthode de mise à jour avec validation des clés étrangères

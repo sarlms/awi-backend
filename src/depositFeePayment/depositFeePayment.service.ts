@@ -1,17 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { DepositFeePayment } from '../schemas/depositFeePayment.schema';
 import { CreateDepositFeePaymentDto } from './dto/create-depositFeePayment.dto';
 import { UpdateDepositFeePaymentDto } from './dto/update-depositFeePayment.dto';
 
 @Injectable()
 export class DepositFeePaymentService {
+
   constructor(@InjectModel(DepositFeePayment.name) private depositFeePaymentModel: Model<DepositFeePayment>) {}
 
   async create(createDepositFeePaymentDto: CreateDepositFeePaymentDto, managerId: string): Promise<DepositFeePayment> {
-    const createdPayment = new this.depositFeePaymentModel({ ...createDepositFeePaymentDto, managerId });
-    return createdPayment.save();
+    return this.depositFeePaymentModel.create({
+      ...createDepositFeePaymentDto,
+      managerId: new Types.ObjectId(managerId), // Conversion en ObjectId
+    });
   }
 
   async findBySellerId(sellerId: string): Promise<DepositFeePayment[]> {
@@ -28,6 +31,10 @@ export class DepositFeePaymentService {
       throw new NotFoundException('DepositFeePayment not found');
     }
     return payment;
+  }
+
+  async findAll(): Promise<DepositFeePayment[]> {
+    return this.depositFeePaymentModel.find().exec();
   }
 
   async update(id: string, updateDepositFeePaymentDto: UpdateDepositFeePaymentDto): Promise<DepositFeePayment> {

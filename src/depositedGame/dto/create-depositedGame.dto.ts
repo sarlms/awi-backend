@@ -1,13 +1,19 @@
-import { IsBoolean, IsNumber, IsNotEmpty, IsMongoId } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class CreateDepositedGameDto {
+  @IsNotEmpty()
+  sellerId: Types.ObjectId;
+
+  @IsNotEmpty()
+  sessionId: Types.ObjectId;
+
+  @IsNotEmpty()
+  gameDescriptionId: Types.ObjectId;
+
   @IsNumber()
   @IsNotEmpty()
   salePrice: number;
-
-  @IsBoolean()
-  @IsNotEmpty()
-  sold: boolean;
 
   @IsBoolean()
   @IsNotEmpty()
@@ -17,15 +23,7 @@ export class CreateDepositedGameDto {
   @IsNotEmpty()
   pickedUp: boolean;
 
-  @IsMongoId()
+  @IsBoolean()
   @IsNotEmpty()
-  sessionId: string;
-
-  @IsMongoId()
-  @IsNotEmpty()
-  sellerId: string;
-
-  @IsMongoId()
-  @IsNotEmpty()
-  gameDescriptionId: string;
+  sold: boolean;
 }

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { DepositedGame } from '../schemas/depositedGame.schema';
 import { CreateDepositedGameDto } from './dto/create-depositedGame.dto';
 import { UpdateDepositedGameDto } from './dto/update-depositedGame.dto';
@@ -10,6 +10,7 @@ import { GameDescription } from '../schemas/gameDescription.schema';
 
 @Injectable()
 export class DepositedGameService {
+
   constructor(
     @InjectModel(DepositedGame.name) private depositedGameModel: Model<DepositedGame>,
     @InjectModel(Session.name) private sessionModel: Model<Session>,
@@ -17,32 +18,49 @@ export class DepositedGameService {
     @InjectModel(GameDescription.name) private gameDescriptionModel: Model<GameDescription>,
   ) {}
 
-  // Vérification de l'existence des IDs étrangers
-  private async validateForeignKeys(sessionId: string, sellerId: string, gameDescriptionId: string) {
-    const session = await this.sessionModel.findById(sessionId).exec();
+  private async validateForeignKeys(
+    sessionId: string | Types.ObjectId,
+    sellerId: string | Types.ObjectId,
+    gameDescriptionId: string | Types.ObjectId,
+  ) {
+    // Convertir en ObjectId si la valeur est une chaîne
+    const sessionObjectId = typeof sessionId === 'string' ? new Types.ObjectId(sessionId) : sessionId;
+    const sellerObjectId = typeof sellerId === 'string' ? new Types.ObjectId(sellerId) : sellerId;
+    const gameDescriptionObjectId = typeof gameDescriptionId === 'string' ? new Types.ObjectId(gameDescriptionId) : gameDescriptionId;
+  
+    const session = await this.sessionModel.findById(sessionObjectId).exec();
     if (!session) throw new NotFoundException('Session not found');
-
-    const seller = await this.sellerModel.findById(sellerId).exec();
+  
+    const seller = await this.sellerModel.findById(sellerObjectId).exec();
     if (!seller) throw new NotFoundException('Seller not found');
-
-    const gameDescription = await this.gameDescriptionModel.findById(gameDescriptionId).exec();
+  
+    const gameDescription = await this.gameDescriptionModel.findById(gameDescriptionObjectId).exec();
     if (!gameDescription) throw new NotFoundException('GameDescription not found');
   }
 
   async create(createDepositedGameDto: CreateDepositedGameDto): Promise<DepositedGame> {
-    // Valide les clés étrangères avant de créer
     await this.validateForeignKeys(
       createDepositedGameDto.sessionId,
       createDepositedGameDto.sellerId,
       createDepositedGameDto.gameDescriptionId,
     );
-
-    const createdGame = new this.depositedGameModel(createDepositedGameDto);
-    return createdGame.save();
+  
+    return this.depositedGameModel.create(createDepositedGameDto);
   }
 
   async findAll(): Promise<DepositedGame[]> {
     return this.depositedGameModel.find().exec();
+  }
+
+  async findBySellerId(sellerId: string): Promise<DepositedGame[]> {
+    return this.depositedGameModel.find({ sellerId: new Types.ObjectId(sellerId) }).exec();
+  }
+
+  async findBySellerAndSession(sellerId: string, sessionId: string): Promise<DepositedGame[]> {
+    return this.depositedGameModel.find({
+      sellerId: new Types.ObjectId(sellerId),
+      sessionId: new Types.ObjectId(sessionId),
+    }).exec();
   }
 
   async findOne(id: string): Promise<DepositedGame> {
