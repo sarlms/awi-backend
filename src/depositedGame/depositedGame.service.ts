@@ -64,10 +64,17 @@ export class DepositedGameService {
   }
 
   async findOne(id: string): Promise<DepositedGame> {
-    const game = await this.depositedGameModel.findById(id).exec();
+    const game = await this.depositedGameModel
+      .findById(id)
+      .populate('sessionId', '_id name')            // Inclut le nom et l'ID de la session
+      .populate('sellerId', '_id name email')       // Inclut le nom, l'ID et l'email du vendeur
+      .populate('gameDescriptionId', '_id title')   // Inclut le titre et l'ID de la description du jeu
+      .exec();
+    
     if (!game) {
       throw new NotFoundException('Deposited game not found');
     }
+    
     return game;
   }
 
