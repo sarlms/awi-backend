@@ -86,6 +86,7 @@ export class DepositedGameService {
       throw new NotFoundException('Deposited game not found');
     }
 
+    console.log('Seller details:', game.sellerId); // Vérifiez si les détails du vendeur sont récupérés
     return game;
   }
 
