@@ -10,7 +10,6 @@ import { GameDescription } from '../schemas/gameDescription.schema';
 
 @Injectable()
 export class DepositedGameService {
-
   constructor(
     @InjectModel(DepositedGame.name) private depositedGameModel: Model<DepositedGame>,
     @InjectModel(Session.name) private sessionModel: Model<Session>,
@@ -23,7 +22,6 @@ export class DepositedGameService {
     sellerId: string | Types.ObjectId,
     gameDescriptionId: string | Types.ObjectId,
   ) {
-    // Convertir en ObjectId si la valeur est une chaîne
     const sessionObjectId = typeof sessionId === 'string' ? new Types.ObjectId(sessionId) : sessionId;
     const sellerObjectId = typeof sellerId === 'string' ? new Types.ObjectId(sellerId) : sellerId;
     const gameDescriptionObjectId = typeof gameDescriptionId === 'string' ? new Types.ObjectId(gameDescriptionId) : gameDescriptionId;
@@ -31,10 +29,10 @@ export class DepositedGameService {
     // ajouter le fait que la session n'est pas encore fermée. 
     const session = await this.sessionModel.findById(sessionObjectId).exec();
     if (!session) throw new NotFoundException('Session not found');
-  
+
     const seller = await this.sellerModel.findById(sellerObjectId).exec();
     if (!seller) throw new NotFoundException('Seller not found');
-  
+
     const gameDescription = await this.gameDescriptionModel.findById(gameDescriptionObjectId).exec();
     if (!gameDescription) throw new NotFoundException('GameDescription not found');
   }
@@ -45,42 +43,54 @@ export class DepositedGameService {
       createDepositedGameDto.sellerId,
       createDepositedGameDto.gameDescriptionId,
     );
-  
+
     return this.depositedGameModel.create(createDepositedGameDto);
   }
 
   async findAll(): Promise<DepositedGame[]> {
-    return this.depositedGameModel.find().exec();
+    return this.depositedGameModel
+      .find()
+      .populate('gameDescriptionId', 'name publisher photoURL description minPlayers maxPlayers ageRange') // Inclut tous les champs nécessaires
+      .populate('sessionId', 'name')
+      .populate('sellerId', 'name email') // Inclut le nom du vendeur
+      .exec();
   }
 
   async findBySellerId(sellerId: string): Promise<DepositedGame[]> {
-    return this.depositedGameModel.find({ sellerId: new Types.ObjectId(sellerId) }).exec();
+    return this.depositedGameModel
+      .find({ sellerId: new Types.ObjectId(sellerId) })
+      .populate('gameDescriptionId', 'name publisher photoURL description minPlayers maxPlayers ageRange') // Inclut tous les champs nécessaires
+      .populate('sellerId', 'name email') // Inclut le nom du vendeur
+      .exec();
   }
 
   async findBySellerAndSession(sellerId: string, sessionId: string): Promise<DepositedGame[]> {
-    return this.depositedGameModel.find({
-      sellerId: new Types.ObjectId(sellerId),
-      sessionId: new Types.ObjectId(sessionId),
-    }).exec();
+    return this.depositedGameModel
+      .find({
+        sellerId: new Types.ObjectId(sellerId),
+        sessionId: new Types.ObjectId(sessionId),
+      })
+      .populate('gameDescriptionId', 'name publisher photoURL description minPlayers maxPlayers ageRange') // Inclut tous les champs nécessaires
+      .populate('sellerId', 'name email') // Inclut le nom du vendeur
+      .exec();
   }
 
   async findOne(id: string): Promise<DepositedGame> {
     const game = await this.depositedGameModel
       .findById(id)
-      .populate('sessionId', '_id name')            // Inclut le nom et l'ID de la session
-      .populate('sellerId', '_id name email')       // Inclut le nom, l'ID et l'email du vendeur
-      .populate('gameDescriptionId', '_id title')   // Inclut le titre et l'ID de la description du jeu
+      .populate('gameDescriptionId', 'name publisher photoURL description minPlayers maxPlayers ageRange') // Inclut tous les champs nécessaires
+      .populate('sessionId', '_id name')
+      .populate('sellerId', '_id name email') // Inclut le nom et l'email du vendeur
       .exec();
-    
+
     if (!game) {
       throw new NotFoundException('Deposited game not found');
     }
-    
+
     return game;
   }
 
   async update(id: string, updateDepositedGameDto: UpdateDepositedGameDto): Promise<DepositedGame> {
-    // Vérifie les clés étrangères si elles sont présentes dans la mise à jour
     if (updateDepositedGameDto.sessionId || updateDepositedGameDto.sellerId || updateDepositedGameDto.gameDescriptionId) {
       await this.validateForeignKeys(
         updateDepositedGameDto.sessionId ?? id,
@@ -104,7 +114,6 @@ export class DepositedGameService {
     return game;
   }
 
-  // Set `forSale` to true if not picked up
   async setForSale(id: string): Promise<DepositedGame> {
     const game = await this.findOne(id);
     if (game.pickedUp) {
@@ -114,14 +123,12 @@ export class DepositedGameService {
     return game.save();
   }
 
-  // Set `forSale` to false
   async removeFromSale(id: string): Promise<DepositedGame> {
     const game = await this.findOne(id);
     game.forSale = false;
     return game.save();
   }
 
-  // Set `pickedUp` to true and `forSale` to false
   async markAsPickedUp(id: string): Promise<DepositedGame> {
     const game = await this.findOne(id);
     game.forSale = false;
