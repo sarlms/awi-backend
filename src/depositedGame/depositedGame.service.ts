@@ -25,7 +25,8 @@ export class DepositedGameService {
     const sessionObjectId = typeof sessionId === 'string' ? new Types.ObjectId(sessionId) : sessionId;
     const sellerObjectId = typeof sellerId === 'string' ? new Types.ObjectId(sellerId) : sellerId;
     const gameDescriptionObjectId = typeof gameDescriptionId === 'string' ? new Types.ObjectId(gameDescriptionId) : gameDescriptionId;
-
+  
+    // ajouter le fait que la session n'est pas encore fermée. 
     const session = await this.sessionModel.findById(sessionObjectId).exec();
     if (!session) throw new NotFoundException('Session not found');
 
