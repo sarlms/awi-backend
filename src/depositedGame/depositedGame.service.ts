@@ -10,7 +10,6 @@ import { GameDescription } from '../schemas/gameDescription.schema';
 
 @Injectable()
 export class DepositedGameService {
-
   constructor(
     @InjectModel(DepositedGame.name) private depositedGameModel: Model<DepositedGame>,
     @InjectModel(Session.name) private sessionModel: Model<Session>,
@@ -27,13 +26,13 @@ export class DepositedGameService {
     const sessionObjectId = typeof sessionId === 'string' ? new Types.ObjectId(sessionId) : sessionId;
     const sellerObjectId = typeof sellerId === 'string' ? new Types.ObjectId(sellerId) : sellerId;
     const gameDescriptionObjectId = typeof gameDescriptionId === 'string' ? new Types.ObjectId(gameDescriptionId) : gameDescriptionId;
-  
+
     const session = await this.sessionModel.findById(sessionObjectId).exec();
     if (!session) throw new NotFoundException('Session not found');
-  
+
     const seller = await this.sellerModel.findById(sellerObjectId).exec();
     if (!seller) throw new NotFoundException('Seller not found');
-  
+
     const gameDescription = await this.gameDescriptionModel.findById(gameDescriptionObjectId).exec();
     if (!gameDescription) throw new NotFoundException('GameDescription not found');
   }
@@ -44,37 +43,48 @@ export class DepositedGameService {
       createDepositedGameDto.sellerId,
       createDepositedGameDto.gameDescriptionId,
     );
-  
+
     return this.depositedGameModel.create(createDepositedGameDto);
   }
 
   async findAll(): Promise<DepositedGame[]> {
-    return this.depositedGameModel.find().exec();
+    return this.depositedGameModel
+      .find()
+      .populate('gameDescriptionId', 'name publisher') // Inclut les champs 'name' et 'publisher'
+      .populate('sessionId', 'name') // Inclut le nom de la session
+      .populate('sellerId', 'name email') // Inclut le nom et l'email du vendeur
+      .exec();
   }
 
   async findBySellerId(sellerId: string): Promise<DepositedGame[]> {
-    return this.depositedGameModel.find({ sellerId: new Types.ObjectId(sellerId) }).exec();
+    return this.depositedGameModel
+      .find({ sellerId: new Types.ObjectId(sellerId) })
+      .populate('gameDescriptionId', 'name publisher') // Inclut les champs 'name' et 'publisher'
+      .exec();
   }
 
   async findBySellerAndSession(sellerId: string, sessionId: string): Promise<DepositedGame[]> {
-    return this.depositedGameModel.find({
-      sellerId: new Types.ObjectId(sellerId),
-      sessionId: new Types.ObjectId(sessionId),
-    }).exec();
+    return this.depositedGameModel
+      .find({
+        sellerId: new Types.ObjectId(sellerId),
+        sessionId: new Types.ObjectId(sessionId),
+      })
+      .populate('gameDescriptionId', 'name publisher') // Inclut les champs 'name' et 'publisher'
+      .exec();
   }
 
   async findOne(id: string): Promise<DepositedGame> {
     const game = await this.depositedGameModel
       .findById(id)
-      .populate('sessionId', '_id name')            // Inclut le nom et l'ID de la session
-      .populate('sellerId', '_id name email')       // Inclut le nom, l'ID et l'email du vendeur
-      .populate('gameDescriptionId', '_id title')   // Inclut le titre et l'ID de la description du jeu
+      .populate('gameDescriptionId', 'name publisher') // Inclut les champs 'name' et 'publisher'
+      .populate('sessionId', '_id name') // Inclut le nom et l'ID de la session
+      .populate('sellerId', '_id name email') // Inclut le nom, l'ID et l'email du vendeur
       .exec();
-    
+
     if (!game) {
       throw new NotFoundException('Deposited game not found');
     }
-    
+
     return game;
   }
 
