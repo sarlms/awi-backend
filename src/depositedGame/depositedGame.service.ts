@@ -49,16 +49,17 @@ export class DepositedGameService {
   async findAll(): Promise<DepositedGame[]> {
     return this.depositedGameModel
       .find()
-      .populate('gameDescriptionId', 'name publisher photoURL') // Inclut 'photoURL'
+      .populate('gameDescriptionId', 'name publisher photoURL description minPlayers maxPlayers ageRange') // Inclut tous les champs nécessaires
       .populate('sessionId', 'name')
-      .populate('sellerId', 'name email')
+      .populate('sellerId', 'name email') // Inclut le nom du vendeur
       .exec();
   }
 
   async findBySellerId(sellerId: string): Promise<DepositedGame[]> {
     return this.depositedGameModel
       .find({ sellerId: new Types.ObjectId(sellerId) })
-      .populate('gameDescriptionId', 'name publisher photoURL') // Inclut 'photoURL'
+      .populate('gameDescriptionId', 'name publisher photoURL description minPlayers maxPlayers ageRange') // Inclut tous les champs nécessaires
+      .populate('sellerId', 'name email') // Inclut le nom du vendeur
       .exec();
   }
 
@@ -68,16 +69,17 @@ export class DepositedGameService {
         sellerId: new Types.ObjectId(sellerId),
         sessionId: new Types.ObjectId(sessionId),
       })
-      .populate('gameDescriptionId', 'name publisher photoURL') // Inclut 'photoURL'
+      .populate('gameDescriptionId', 'name publisher photoURL description minPlayers maxPlayers ageRange') // Inclut tous les champs nécessaires
+      .populate('sellerId', 'name email') // Inclut le nom du vendeur
       .exec();
   }
 
   async findOne(id: string): Promise<DepositedGame> {
     const game = await this.depositedGameModel
       .findById(id)
-      .populate('gameDescriptionId', 'name publisher photoURL') // Inclut 'photoURL'
+      .populate('gameDescriptionId', 'name publisher photoURL description minPlayers maxPlayers ageRange') // Inclut tous les champs nécessaires
       .populate('sessionId', '_id name')
-      .populate('sellerId', '_id name email')
+      .populate('sellerId', '_id name email') // Inclut le nom et l'email du vendeur
       .exec();
 
     if (!game) {
