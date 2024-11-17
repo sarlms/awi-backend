@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
+export type TransactionDocument = Transaction & Document;
+
 @Schema()
 export class Transaction extends Document {
   @Prop({ type: Types.ObjectId, ref: 'DepositedGame', required: true })

@@ -16,5 +16,6 @@ import { GameDescriptionModule } from '../gameDescription/gameDescription.module
   ],
   controllers: [DepositedGameController],
   providers: [DepositedGameService],
+  exports: [MongooseModule],
 })
 export class DepositedGameModule {}

@@ -15,6 +15,8 @@ import { DepositFeePaymentModule } from './depositFeePayment/depositFeePayment.m
 
 import * as dotenv from 'dotenv';
 import { RefundModule } from './refund/refund.module';
+import { ClientModule } from './client/client.module';
+import { TransactionModule } from './transaction/transaction.module';
 
 dotenv.config();
 
@@ -30,7 +32,8 @@ dotenv.config();
     DepositedGameModule,
     DepositFeePaymentModule,
     RefundModule,
-
+    ClientModule,
+    TransactionModule,
   ],
   controllers: [
     ManagerController,
