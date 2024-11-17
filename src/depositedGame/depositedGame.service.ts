@@ -22,7 +22,6 @@ export class DepositedGameService {
     sellerId: string | Types.ObjectId,
     gameDescriptionId: string | Types.ObjectId,
   ) {
-    // Convertir en ObjectId si la valeur est une chaîne
     const sessionObjectId = typeof sessionId === 'string' ? new Types.ObjectId(sessionId) : sessionId;
     const sellerObjectId = typeof sellerId === 'string' ? new Types.ObjectId(sellerId) : sellerId;
     const gameDescriptionObjectId = typeof gameDescriptionId === 'string' ? new Types.ObjectId(gameDescriptionId) : gameDescriptionId;
@@ -50,16 +49,16 @@ export class DepositedGameService {
   async findAll(): Promise<DepositedGame[]> {
     return this.depositedGameModel
       .find()
-      .populate('gameDescriptionId', 'name publisher') // Inclut les champs 'name' et 'publisher'
-      .populate('sessionId', 'name') // Inclut le nom de la session
-      .populate('sellerId', 'name email') // Inclut le nom et l'email du vendeur
+      .populate('gameDescriptionId', 'name publisher photoURL') // Inclut 'photoURL'
+      .populate('sessionId', 'name')
+      .populate('sellerId', 'name email')
       .exec();
   }
 
   async findBySellerId(sellerId: string): Promise<DepositedGame[]> {
     return this.depositedGameModel
       .find({ sellerId: new Types.ObjectId(sellerId) })
-      .populate('gameDescriptionId', 'name publisher') // Inclut les champs 'name' et 'publisher'
+      .populate('gameDescriptionId', 'name publisher photoURL') // Inclut 'photoURL'
       .exec();
   }
 
@@ -69,16 +68,16 @@ export class DepositedGameService {
         sellerId: new Types.ObjectId(sellerId),
         sessionId: new Types.ObjectId(sessionId),
       })
-      .populate('gameDescriptionId', 'name publisher') // Inclut les champs 'name' et 'publisher'
+      .populate('gameDescriptionId', 'name publisher photoURL') // Inclut 'photoURL'
       .exec();
   }
 
   async findOne(id: string): Promise<DepositedGame> {
     const game = await this.depositedGameModel
       .findById(id)
-      .populate('gameDescriptionId', 'name publisher') // Inclut les champs 'name' et 'publisher'
-      .populate('sessionId', '_id name') // Inclut le nom et l'ID de la session
-      .populate('sellerId', '_id name email') // Inclut le nom, l'ID et l'email du vendeur
+      .populate('gameDescriptionId', 'name publisher photoURL') // Inclut 'photoURL'
+      .populate('sessionId', '_id name')
+      .populate('sellerId', '_id name email')
       .exec();
 
     if (!game) {
@@ -89,7 +88,6 @@ export class DepositedGameService {
   }
 
   async update(id: string, updateDepositedGameDto: UpdateDepositedGameDto): Promise<DepositedGame> {
-    // Vérifie les clés étrangères si elles sont présentes dans la mise à jour
     if (updateDepositedGameDto.sessionId || updateDepositedGameDto.sellerId || updateDepositedGameDto.gameDescriptionId) {
       await this.validateForeignKeys(
         updateDepositedGameDto.sessionId ?? id,
@@ -113,7 +111,6 @@ export class DepositedGameService {
     return game;
   }
 
-  // Set `forSale` to true if not picked up
   async setForSale(id: string): Promise<DepositedGame> {
     const game = await this.findOne(id);
     if (game.pickedUp) {
@@ -123,14 +120,12 @@ export class DepositedGameService {
     return game.save();
   }
 
-  // Set `forSale` to false
   async removeFromSale(id: string): Promise<DepositedGame> {
     const game = await this.findOne(id);
     game.forSale = false;
     return game.save();
   }
 
-  // Set `pickedUp` to true and `forSale` to false
   async markAsPickedUp(id: string): Promise<DepositedGame> {
     const game = await this.findOne(id);
     game.forSale = false;
