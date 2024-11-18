@@ -25,4 +25,9 @@ export class ClientService {
   async remove(id: string): Promise<Client> {
     return this.clientModel.findByIdAndDelete(id).exec();
   }
+
+  async findAll(): Promise<Client[]> {
+    return this.clientModel.find().exec(); // Récupère tous les documents dans la collection "clients"
+  }
+  
 }
