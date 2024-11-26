@@ -13,10 +13,8 @@ import { SessionModule } from './session/session.module';
 import { DepositedGameModule } from './depositedGame/depositedGame.module';
 import { DepositFeePaymentModule } from './depositFeePayment/depositFeePayment.module';
 import { ClientModule } from './client/client.module'; // Import du ClientModule
-
 import * as dotenv from 'dotenv';
 import { RefundModule } from './refund/refund.module';
-import { ClientModule } from './client/client.module';
 import { TransactionModule } from './transaction/transaction.module';
 
 dotenv.config();
@@ -33,12 +31,8 @@ dotenv.config();
     DepositedGameModule,
     DepositFeePaymentModule,
     RefundModule,
-<<<<<<< HEAD
-    ClientModule, // Ajout du module client ici
-=======
     ClientModule,
     TransactionModule,
->>>>>>> 929dc4578fdb5ca7bda6a7bb2c83a95714bfdcf3
   ],
   controllers: [
     ManagerController,
