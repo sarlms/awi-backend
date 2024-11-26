@@ -97,8 +97,12 @@ export class ManagerController {
       email: manager.email,
       firstName: manager.firstName,
       lastName: manager.lastName,
+      phone: manager.phone,
+      address: manager.address,
+      admin: manager.admin, // Ajout du champ admin
     }));
   }
+
 
   // Route pour mettre à jour un manager par ID (réservée aux administrateurs)
   @UseGuards(JwtAuthGuard, AdminGuard)
