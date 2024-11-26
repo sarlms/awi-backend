@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { DepositedGame } from '../schemas/depositedGame.schema';
+import { DepositedGame, DepositedGameDocument } from '../schemas/depositedGame.schema';
 import { CreateDepositedGameDto } from './dto/create-depositedGame.dto';
 import { UpdateDepositedGameDto } from './dto/update-depositedGame.dto';
 import { Session } from '../schemas/session.schema';
@@ -11,7 +11,7 @@ import { GameDescription } from '../schemas/gameDescription.schema';
 @Injectable()
 export class DepositedGameService {
   constructor(
-    @InjectModel(DepositedGame.name) private depositedGameModel: Model<DepositedGame>,
+    @InjectModel(DepositedGame.name) private depositedGameModel: Model<DepositedGameDocument>,
     @InjectModel(Session.name) private sessionModel: Model<Session>,
     @InjectModel(Seller.name) private sellerModel: Model<Seller>,
     @InjectModel(GameDescription.name) private gameDescriptionModel: Model<GameDescription>,

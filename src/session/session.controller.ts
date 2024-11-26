@@ -9,6 +9,7 @@ export class SessionController {
 
   @Post()
   async create(@Body() createSessionDto: CreateSessionDto) {
+    console.log('Requête de création de session reçue :', createSessionDto);
     return this.sessionService.create(createSessionDto);
   }
 

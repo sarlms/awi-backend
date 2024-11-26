@@ -2,14 +2,20 @@ import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common'
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { UseGuards, Req } from '@nestjs/common';
+
+import { JwtAuthGuard } from '../auth/jwt-auth.guards';
+import { Request } from 'express';
 
 @Controller('transaction')
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() createTransactionDto: CreateTransactionDto) {
-    return this.transactionService.create(createTransactionDto);
+  async createTransaction(@Body() createTransactionDto: CreateTransactionDto, @Req() req: Request) {
+    const managerId = req.user.id;
+    return this.transactionService.createTransaction(createTransactionDto, managerId);
   }
 
   @Get(':id')
