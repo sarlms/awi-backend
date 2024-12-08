@@ -10,53 +10,68 @@ import { Transaction, TransactionDocument } from '../schemas/transaction.schema'
 import { DepositedGame, DepositedGameDocument } from '../schemas/depositedGame.schema';
 import { Seller, SellerDocument } from '../schemas/seller.schema';
 import { Session, SessionDocument } from '../schemas/session.schema';
+import { Client, ClientDocument } from '../schemas/client.schema';
 
 @Injectable()
 export class TransactionService {
   constructor(
     @InjectModel(Transaction.name) private readonly transactionModel: Model<TransactionDocument>,
+    @InjectModel(DepositedGame.name) private readonly depositedGameModel: Model<DepositedGameDocument>,
     @InjectModel(Seller.name) private readonly sellerModel: Model<SellerDocument>,
     @InjectModel(Session.name) private readonly sessionModel: Model<SessionDocument>,
-    @InjectModel(DepositedGame.name) private readonly depositedGameModel: Model<DepositedGameDocument>,
-
+    @InjectModel(Client.name) private readonly clientModel: Model<ClientDocument>,
   ) {}
 
   async createTransaction(createTransactionDto: CreateTransactionDto, managerId: string): Promise<Transaction> {
-    const { labelId, sessionId, sellerId } = createTransactionDto;
+    const { labelId, sessionId, sellerId, clientId } = createTransactionDto;
 
-    // Vérification du jeu déposé
+    // 1. Verify that the DepositedGame exists
     const depositedGame = await this.depositedGameModel.findById(labelId);
     if (!depositedGame) {
       throw new NotFoundException('Deposited game not found');
     }
-    if (!depositedGame.forSale) {
-      throw new BadRequestException('Deposited game is not for sale');
+
+    // 2. Check if the game is for sale and not picked up
+    if (!depositedGame.forSale || depositedGame.pickedUp) {
+      throw new BadRequestException('Deposited game is either not for sale or has been picked up');
     }
 
-    // Mise à jour des états du jeu déposé
-    depositedGame.forSale = false;
-    depositedGame.sold = true;
-    await depositedGame.save();
-
-    // Récupération de la session pour accéder à `saleComission`
-    const session = await this.sessionModel.findById(depositedGame.sessionId);
+    // 3. Verify the session and ensure it's currently open
+    const session = await this.sessionModel.findById(sessionId);
     if (!session) {
       throw new NotFoundException('Session not found');
     }
 
-    const saleCommission = session.saleComission;
+    const currentDate = new Date();
+    if (currentDate < session.startDate || currentDate > session.endDate) {
+      throw new BadRequestException('The associated session is not currently open');
+    }
 
-    // Mise à jour du montant dû au vendeur
+    // 4. Verify the client exists
+    const client = await this.clientModel.findById(clientId);
+    if (!client) {
+      throw new NotFoundException('Client not found');
+    }
+
+    // 5. Verify the seller exists
     const seller = await this.sellerModel.findById(sellerId);
     if (!seller) {
       throw new NotFoundException('Seller not found');
     }
+
+    // 6. Update the DepositedGame's status
+    depositedGame.forSale = false;
+    depositedGame.sold = true;
+    await depositedGame.save();
+
+    // 7. Update the seller's amount owed
     const salePrice = depositedGame.salePrice;
+    const saleCommission = session.saleComission;
     const amountToAdd = salePrice - salePrice * saleCommission;
     seller.amountOwed += amountToAdd;
     await seller.save();
 
-    // Création de la transaction
+    // 8. Create and save the transaction
     const transaction = new this.transactionModel({
       ...createTransactionDto,
       managerId,

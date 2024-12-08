@@ -11,6 +11,7 @@ import { Transaction } from '../schemas/transaction.schema'; // Ajout de l'impor
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
+  // Seul un manager connecté peu créer une transaction. 
   @UseGuards(JwtAuthGuard)
   @Post()
   async createTransaction(@Body() createTransactionDto: CreateTransactionDto, @Req() req: Request) {
