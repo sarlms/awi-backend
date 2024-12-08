@@ -1,3 +1,4 @@
+//depositedGame.service.ts
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -12,7 +13,7 @@ import { GameDescription } from '../schemas/gameDescription.schema';
 export class DepositedGameService {
   constructor(
     @InjectModel(DepositedGame.name) private depositedGameModel: Model<DepositedGameDocument>,
-    @InjectModel(Session.name) private sessionModel: Model<Session>,
+    @InjectModel(Session.name) private sessionModel: Model<Session>, // Le modèle Session est bien injecté ici
     @InjectModel(Seller.name) private sellerModel: Model<Seller>,
     @InjectModel(GameDescription.name) private gameDescriptionModel: Model<GameDescription>,
   ) {}
@@ -51,8 +52,8 @@ export class DepositedGameService {
     return this.depositedGameModel
       .find()
       .populate('gameDescriptionId', 'name publisher photoURL description minPlayers maxPlayers ageRange') // Inclut tous les champs nécessaires
-      .populate('sessionId', 'name')
       .populate('sellerId', 'name email') // Inclut le nom du vendeur
+      .populate('sessionId', 'name saleComission')
       .exec();
   }
 
@@ -74,6 +75,15 @@ export class DepositedGameService {
       .populate('sellerId', 'name email') // Inclut le nom du vendeur
       .exec();
   }
+
+  async getSessions(): Promise<Session[]> {
+    return this.sessionModel.find().exec();
+  }
+  
+  async getSellers(): Promise<Seller[]> {
+    return this.sellerModel.find().exec();
+  }
+  
 
   async findOne(id: string): Promise<DepositedGame> {
     const game = await this.depositedGameModel
@@ -136,4 +146,44 @@ export class DepositedGameService {
     game.pickedUp = true;
     return game.save();
   }
+
+  async updateDepositedGame(id: string, updateData: any): Promise<DepositedGame> {
+    const depositedGame = await this.depositedGameModel.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+    if (!depositedGame) {
+      throw new NotFoundException('Jeu déposé non trouvé');
+    }
+    return depositedGame;
+  }
+
+  async findBySessionId(sessionId: string): Promise<DepositedGame[]> {
+    const depositedGames = await this.depositedGameModel
+      .find({ sessionId })
+      .populate('gameDescriptionId', 'name publisher photoURL description')
+      .populate('sessionId', 'name saleComission') // Inclure les champs nécessaires
+      .exec();
+  
+    console.log(
+      depositedGames.map((game) => ({
+        id: game._id,
+        sessionId: game.sessionId, // Vérifiez si c'est peuplé
+        salePrice: game.salePrice,
+        sold: game.sold,
+      }))
+    );
+  
+    return depositedGames;
+  }
+
+  async findAllWithSessions(): Promise<DepositedGame[]> {
+    return this.depositedGameModel
+      .find()
+      .populate('sessionId', 'name startDate endDate') // Inclure startDate et endDate pour éviter les sessions incomplètes
+      .populate('sellerId', 'name email') // Peupler le vendeur pour valider son association
+      .exec();
+  }
+  
+  
+  
 }

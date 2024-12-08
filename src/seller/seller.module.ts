@@ -1,3 +1,4 @@
+//seller.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SellerService } from './seller.service';
@@ -8,6 +9,6 @@ import { Seller, SellerSchema } from '../schemas/seller.schema';
   imports: [MongooseModule.forFeature([{ name: Seller.name, schema: SellerSchema }])],
   controllers: [SellerController],
   providers: [SellerService],
-  exports: [MongooseModule],
+  exports: [MongooseModule, SellerService],
 })
 export class SellerModule {}

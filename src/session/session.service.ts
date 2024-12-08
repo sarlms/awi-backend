@@ -1,14 +1,18 @@
+//session.service.ts
 import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Session } from '../schemas/session.schema';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
+import { DepositedGameService } from '../depositedGame/depositedGame.service'; 
 
 @Injectable()
 export class SessionService {
-  constructor(@InjectModel(Session.name) private sessionModel: Model<Session>) {}
-
+  constructor(
+    @InjectModel(Session.name) private sessionModel: Model<Session>,
+    private depositedGameService: DepositedGameService, // Injection du service DepositedGame
+  ) {}
   // Helper pour valider les dates
   private validateDates(startDate: Date, endDate: Date): void {
     if (new Date(startDate) >= new Date(endDate)) {
@@ -119,4 +123,53 @@ export class SessionService {
     }
     return deletedSession;
   }
+
+    async getSessionReport(sessionId: string) {
+    const session = await this.sessionModel.findById(sessionId);
+    if (!session) {
+      throw new NotFoundException(`Session with ID ${sessionId} not found`);
+    }
+
+    // Appel au service DepositedGame pour récupérer les jeux déposés
+    const depositedGames = await this.depositedGameService.findBySessionId(sessionId);
+
+    const totalGames = depositedGames.length;
+
+    const soldGames = depositedGames.filter((game) => game.sold).length;
+
+    const totalRevenusVentesAvantComission = depositedGames.reduce((sum, game) => {
+      return game.sold ? sum + game.salePrice : sum;
+    }, 0);
+    
+    const totalCommissionsEncaissees = depositedGames.reduce((sum, game) => {
+      if (game.sold && typeof game.salePrice === 'number' && game.sessionId) {
+        const session = game.sessionId as { saleComission?: number };
+        console.log('comission du depositedgame :', session.saleComission);
+        if (session.saleComission !== undefined) {
+          return sum + game.salePrice * (session.saleComission / 100);
+        }
+      }
+      return sum;
+    }, 0);
+    
+    console.log('Total des commissions encaissées :', totalCommissionsEncaissees);
+    
+
+    return {
+      sessionName: session.name,
+      totalGames,
+      soldGames,
+      totalRevenusVentesAvantComission,
+      totalCommissionsEncaissees,
+    };
+  }
+
+  async findActiveSessions(): Promise<Session[]> {
+    const today = new Date();
+    const sessions = await this.sessionModel.find({ endDate: { $gt: today } }).exec();
+    console.log('Sessions actives récupérées:', sessions);
+    return sessions;
+  }
+  
+
 }

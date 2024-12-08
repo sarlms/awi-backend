@@ -1,6 +1,6 @@
 // src/manager/dto/profile.dto.ts
 
-import { IsString, IsEmail } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsBoolean } from 'class-validator';
 
 export class ProfileDto {
   @IsString()
@@ -14,6 +14,18 @@ export class ProfileDto {
 
   @IsString()
   lastName: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @IsOptional()
+  @IsBoolean() // Changement ici
+  admin?: boolean;
 
   // Add any additional fields as necessary
 }

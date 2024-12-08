@@ -4,6 +4,8 @@ import { Model } from 'mongoose';
 import { Client } from '../schemas/client.schema';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { ConflictException } from '@nestjs/common';
+
 
 @Injectable()
 export class ClientService {
@@ -19,6 +21,13 @@ export class ClientService {
   }
 
   async update(id: string, updateClientDto: UpdateClientDto): Promise<Client> {
+    if (updateClientDto.email) {
+      const emailExists = await this.clientModel.findOne({ email: updateClientDto.email, _id: { $ne: id } }).exec();
+      if (emailExists) {
+        throw new ConflictException('Cet email est déjà pris.');
+      }
+    }
+  
     return this.clientModel.findByIdAndUpdate(id, updateClientDto, { new: true }).exec();
   }
 

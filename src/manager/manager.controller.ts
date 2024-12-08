@@ -6,6 +6,7 @@ import {
   NotFoundException,
   UseGuards,
   Get,
+  Put,
   Param,
   ConflictException,
   Body,
@@ -78,14 +79,18 @@ export class ManagerController {
     if (!manager) {
       throw new NotFoundException('Manager not found');
     }
-
+  
     return {
       id: manager._id.toString(),
       email: manager.email,
       firstName: manager.firstName,
       lastName: manager.lastName,
+      phone: manager.phone,
+      address: manager.address,
+      admin: manager.admin, // Boolean correctement géré
     };
   }
+  
 
   // Route for retrieving all managers (reserved for admins)
   @UseGuards(JwtAuthGuard, AdminGuard)
@@ -94,15 +99,15 @@ export class ManagerController {
     const managers = await this.managerService.findAll();
     return managers.map((manager) => ({
       id: manager._id.toString(),
+      _id: manager._id.toString(), // Optionnel
       email: manager.email,
       firstName: manager.firstName,
       lastName: manager.lastName,
       phone: manager.phone,
       address: manager.address,
-      admin: manager.admin, // Ajout du champ admin
+      admin: manager.admin, // Boolean correctement géré
     }));
   }
-
 
   // Route pour mettre à jour un manager par ID (réservée aux administrateurs)
   @UseGuards(JwtAuthGuard, AdminGuard)
@@ -121,6 +126,27 @@ export class ManagerController {
       email: updatedManager.email,
       firstName: updatedManager.firstName,
       lastName: updatedManager.lastName,
+    };
+  }
+
+  @Put(':id')
+  async updateManagerPut(
+    @Param('id') id: string,
+    @Body() updateManagerDto: UpdateManagerDto,
+  ): Promise<ProfileDto> {
+    const updatedManager = await this.managerService.update(id, updateManagerDto);
+    if (!updatedManager) {
+      throw new NotFoundException('Manager not found');
+    }
+  
+    return {
+      id: updatedManager._id.toString(),
+      email: updatedManager.email,
+      firstName: updatedManager.firstName,
+      lastName: updatedManager.lastName,
+      phone: updatedManager.phone,
+      address: updatedManager.address,
+      admin: updatedManager.admin,
     };
   }
 

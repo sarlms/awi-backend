@@ -1,4 +1,4 @@
-import { Injectable, forwardRef, Inject, Logger } from '@nestjs/common';
+import { Injectable, forwardRef, Inject, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { Manager, ManagerDocument } from '../schemas/manager.schema';
@@ -56,13 +56,18 @@ export class ManagerService {
 
   // Méthode pour mettre à jour un manager par ID
   async update(id: string, updateManagerDto: UpdateManagerDto): Promise<ManagerDocument | null> {
-    return await this.managerModel.findByIdAndUpdate(id, updateManagerDto, {
-      new: true, // Retourne le document mis à jour
-    });
+    if (!id) {
+      throw new NotFoundException('ID du manager manquant.');
+    }
+    return await this.managerModel.findByIdAndUpdate(id, updateManagerDto, { new: true });
   }
 
   // Méthode pour supprimer un manager par ID
   async delete(id: string): Promise<ManagerDocument | null> {
+    if (!id) {
+      throw new NotFoundException('ID du manager manquant.');
+    }
     return await this.managerModel.findByIdAndDelete(id);
   }
+  
 }

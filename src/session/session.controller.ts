@@ -1,3 +1,4 @@
+//session.controller.ts
 import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
 import { SessionService } from './session.service';
 import { CreateSessionDto } from './dto/create-session.dto';
@@ -16,6 +17,11 @@ export class SessionController {
   @Get()
   async findAll() {
     return this.sessionService.findAll();
+  }
+
+  @Get('active')
+  async findActiveSessions() {
+    return this.sessionService.findActiveSessions();
   }
 
   @Get(':id')
@@ -47,4 +53,11 @@ export class SessionController {
   async removeByName(@Param('name') name: string) {
     return this.sessionService.removeByName(name);
   }
+
+  @Get(':sessionId/report')
+  async getSessionReport(@Param('sessionId') sessionId: string) {
+      return this.sessionService.getSessionReport(sessionId);
+  }
+  
+
 }
