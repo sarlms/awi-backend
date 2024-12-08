@@ -7,6 +7,7 @@ import { SellerModule } from '../seller/seller.module';
 import { SessionModule } from '../session/session.module';
 import { ManagerModule } from '../manager/manager.module';
 import { DepositedGameModule } from '../depositedGame/depositedGame.module';
+import { ClientModule } from 'src/client/client.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { DepositedGameModule } from '../depositedGame/depositedGame.module';
     SessionModule,
     ManagerModule,
     DepositedGameModule, 
+    ClientModule
   ],
   controllers: [TransactionController],
   providers: [TransactionService],

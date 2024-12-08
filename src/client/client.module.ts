@@ -8,6 +8,7 @@ import { Client, ClientSchema } from '../schemas/client.schema';
   imports: [MongooseModule.forFeature([{ name: Client.name, schema: ClientSchema }])],
   controllers: [ClientController],
   providers: [ClientService],
+  exports: [MongooseModule],
   
 })
 export class ClientModule {}
