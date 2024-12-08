@@ -170,6 +170,15 @@ export class SessionService {
     console.log('Sessions actives récupérées:', sessions);
     return sessions;
   }
+
+  async isOpened(sessionId: string): Promise<boolean> {
+    const session = await this.sessionModel.findById(sessionId).exec();
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+    const today = new Date();
+    return today >= session.startDate && today <= session.endDate;
+  }
   
 
 }

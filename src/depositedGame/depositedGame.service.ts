@@ -1,5 +1,5 @@
 //depositedGame.service.ts
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { DepositedGame, DepositedGameDocument } from '../schemas/depositedGame.schema';
@@ -8,6 +8,7 @@ import { UpdateDepositedGameDto } from './dto/update-depositedGame.dto';
 import { Session } from '../schemas/session.schema';
 import { Seller } from '../schemas/seller.schema';
 import { GameDescription } from '../schemas/gameDescription.schema';
+import { SessionService } from 'src/session/session.service';
 
 @Injectable()
 export class DepositedGameService {
@@ -16,6 +17,7 @@ export class DepositedGameService {
     @InjectModel(Session.name) private sessionModel: Model<Session>, // Le modèle Session est bien injecté ici
     @InjectModel(Seller.name) private sellerModel: Model<Seller>,
     @InjectModel(GameDescription.name) private gameDescriptionModel: Model<GameDescription>,
+    @Inject(forwardRef(() => SessionService)) private sessionService: SessionService, // Utilisez forwardRef ici
   ) {}
 
   private async validateForeignKeys(
@@ -39,12 +41,23 @@ export class DepositedGameService {
   }
 
   async create(createDepositedGameDto: CreateDepositedGameDto): Promise<DepositedGame> {
-    await this.validateForeignKeys(
-      createDepositedGameDto.sessionId,
-      createDepositedGameDto.sellerId,
-      createDepositedGameDto.gameDescriptionId,
-    );
-
+    const { sessionId, sellerId, gameDescriptionId } = createDepositedGameDto;
+  
+    // Valider les clés étrangères
+    await this.validateForeignKeys(sessionId, sellerId, gameDescriptionId);
+  
+    // Vérifier si la session est ouverte
+    const isSessionOpen = await this.sessionService.isOpened(sessionId.toString());
+    if (!isSessionOpen) {
+      throw new ConflictException('Cannot create a deposited game for a closed session');
+    }
+  
+    // Initialiser les champs `sold`, `forSale`, `pickedUp` à `false`
+    createDepositedGameDto.sold = false;
+    createDepositedGameDto.forSale = false;
+    createDepositedGameDto.pickedUp = false;
+  
+    // Créer le jeu déposé
     return this.depositedGameModel.create(createDepositedGameDto);
   }
 
