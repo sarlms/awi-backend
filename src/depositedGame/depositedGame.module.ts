@@ -9,6 +9,7 @@ import { GameDescription, GameDescriptionSchema } from '../schemas/gameDescripti
 import { SessionService } from 'src/session/session.service';
 import { SellerModule } from 'src/seller/seller.module';
 import { GameDescriptionModule } from 'src/gameDescription/gameDescription.module';
+import { Session, SessionSchema } from 'src/schemas/session.schema';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GameDescriptionModule } from 'src/gameDescription/gameDescription.modul
       { name: DepositedGame.name, schema: DepositedGameSchema },
       { name: Seller.name, schema: SellerSchema },
       { name: GameDescription.name, schema: GameDescriptionSchema },
+      { name: Session.name, schema: SessionSchema }
     ]),
     forwardRef(() => SessionModule),
     SellerModule,  
