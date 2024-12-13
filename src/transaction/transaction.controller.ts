@@ -46,4 +46,10 @@ export class TransactionController {
   async findAll(): Promise<Transaction[]> {
     return this.transactionService.findAll();
   }
+
+  @Get('client/:clientId')
+  async findTransactionsByClientId(@Param('clientId') clientId: string): Promise<Transaction[]> {
+    return this.transactionService.findByClientId(clientId);
+  }
+
 }

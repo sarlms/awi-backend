@@ -164,5 +164,24 @@ export class TransactionService {
   
     return createdTransactions;
   }
+
+  async findByClientId(clientId: string): Promise<Transaction[]> {
+    const transactions = await this.transactionModel
+      .find({ clientId: clientId }) // Recherche toutes les transactions associées à clientId
+      .populate([
+        { path: 'labelId', populate: { path: 'gameDescriptionId', select: 'name' } }, // Populate imbriqué pour les jeux
+        { path: 'sessionId', select: 'name' }, // Populate session
+        { path: 'sellerId', select: 'name' },  // Populate vendeur
+        { path: 'managerId', select: 'firstName lastName' }, // Populate manager
+      ])
+      .exec();
+  
+    if (!transactions || transactions.length === 0) {
+      throw new NotFoundException(`No transactions found for client with ID ${clientId}`);
+    }
+  
+    return transactions;
+  }
+  
   
 }
