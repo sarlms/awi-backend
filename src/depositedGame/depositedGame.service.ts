@@ -1,5 +1,5 @@
 //depositedGame.service.ts
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { DepositedGame, DepositedGameDocument } from '../schemas/depositedGame.schema';
@@ -8,6 +8,7 @@ import { UpdateDepositedGameDto } from './dto/update-depositedGame.dto';
 import { Session } from '../schemas/session.schema';
 import { Seller } from '../schemas/seller.schema';
 import { GameDescription } from '../schemas/gameDescription.schema';
+import { SessionService } from 'src/session/session.service';
 
 @Injectable()
 export class DepositedGameService {
@@ -16,8 +17,10 @@ export class DepositedGameService {
     @InjectModel(Session.name) private sessionModel: Model<Session>, // Le modèle Session est bien injecté ici
     @InjectModel(Seller.name) private sellerModel: Model<Seller>,
     @InjectModel(GameDescription.name) private gameDescriptionModel: Model<GameDescription>,
+    @Inject(forwardRef(() => SessionService)) private sessionService: SessionService, // Utilisez forwardRef ici
   ) {}
 
+  // Vérifie que la session, le vendeur et la description de jeu existent dans la base de donnée 
   private async validateForeignKeys(
     sessionId: string | Types.ObjectId,
     sellerId: string | Types.ObjectId,
@@ -27,7 +30,7 @@ export class DepositedGameService {
     const sellerObjectId = typeof sellerId === 'string' ? new Types.ObjectId(sellerId) : sellerId;
     const gameDescriptionObjectId = typeof gameDescriptionId === 'string' ? new Types.ObjectId(gameDescriptionId) : gameDescriptionId;
   
-    // ajouter le fait que la session n'est pas encore fermée. 
+    
     const session = await this.sessionModel.findById(sessionObjectId).exec();
     if (!session) throw new NotFoundException('Session not found');
 
@@ -38,13 +41,28 @@ export class DepositedGameService {
     if (!gameDescription) throw new NotFoundException('GameDescription not found');
   }
 
+  // Méthode de création d'un dépot de jeu
+  // - Valide les clés étrangères 
+  // - Vérifie que la session est ouverte 
+  // - Initialise sold, pickedUp et forSale à faux
   async create(createDepositedGameDto: CreateDepositedGameDto): Promise<DepositedGame> {
-    await this.validateForeignKeys(
-      createDepositedGameDto.sessionId,
-      createDepositedGameDto.sellerId,
-      createDepositedGameDto.gameDescriptionId,
-    );
-
+    const { sessionId, sellerId, gameDescriptionId } = createDepositedGameDto;
+  
+    // Valider les clés étrangères
+    await this.validateForeignKeys(sessionId, sellerId, gameDescriptionId);
+  
+    // Vérifier si la session est ouverte
+    const isSessionOpen = await this.sessionService.isOpened(sessionId.toString());
+    if (!isSessionOpen) {
+      throw new ConflictException('Cannot create a deposited game for a closed session');
+    }
+  
+    // Initialiser les champs `sold`, `forSale`, `pickedUp` à `false`
+    createDepositedGameDto.sold = false;
+    createDepositedGameDto.forSale = false;
+    createDepositedGameDto.pickedUp = false;
+  
+    // Créer le jeu déposé
     return this.depositedGameModel.create(createDepositedGameDto);
   }
 

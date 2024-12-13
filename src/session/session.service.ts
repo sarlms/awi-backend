@@ -20,30 +20,42 @@ export class SessionService {
     }
   }
 
-  async create(createSessionDto: CreateSessionDto): Promise<Session> {
-    // Valide les dates
-    this.validateDates(createSessionDto.startDate, createSessionDto.endDate);
+/**
+   * Crée une nouvelle session dans la base de données.
+   * 
+   * @param createSessionDto - Les données nécessaires pour créer une session, incluant :
+   *   - `name`: Le nom unique de la session.
+   *   - `startDate`: La date de début de la session.
+   *   - `endDate`: La date de fin de la session.
+   * @returns La session créée sous forme d'objet `Session`.
+   * 
+   * @throws ConflictException - Si le nom de la session existe déjà ou si les dates de la session
+   *   chevauchent une autre session existante.
+   */
+async create(createSessionDto: CreateSessionDto): Promise<Session> {
+  // Valide les dates
+  this.validateDates(createSessionDto.startDate, createSessionDto.endDate);
 
-    // Vérifie l'unicité du nom de la session
-    const existingSession = await this.sessionModel.findOne({ name: createSessionDto.name }).exec();
-    if (existingSession) {
-      throw new ConflictException('Le nom de session existe déjà.');
-    }
-
-    // Vérifie les chevauchements de dates
-    const overlappingSession = await this.sessionModel.findOne({
-      $or: [
-        { startDate: { $lt: createSessionDto.endDate }, endDate: { $gt: createSessionDto.startDate } },
-      ],
-    }).exec();
-    if (overlappingSession) {
-      throw new ConflictException('Les dates de session chevauchent une session existante.');
-    }
-
-    // Crée la session
-    const createdSession = new this.sessionModel(createSessionDto);
-    return createdSession.save();
+  // Vérifie l'unicité du nom de la session
+  const existingSession = await this.sessionModel.findOne({ name: createSessionDto.name }).exec();
+  if (existingSession) {
+    throw new ConflictException('Le nom de session existe déjà.');
   }
+
+  // Vérifie les chevauchements de dates
+  const overlappingSession = await this.sessionModel.findOne({
+    $or: [
+      { startDate: { $lt: createSessionDto.endDate }, endDate: { $gt: createSessionDto.startDate } },
+    ],
+  }).exec();
+  if (overlappingSession) {
+    throw new ConflictException('Les dates de session chevauchent une session existante.');
+  }
+
+  // Crée la session
+  const createdSession = new this.sessionModel(createSessionDto);
+  return createdSession.save();
+}
 
   async findAll(): Promise<Session[]> {
     return this.sessionModel.find().exec();
@@ -169,6 +181,15 @@ export class SessionService {
     const sessions = await this.sessionModel.find({ endDate: { $gt: today } }).exec();
     console.log('Sessions actives récupérées:', sessions);
     return sessions;
+  }
+
+  async isOpened(sessionId: string): Promise<boolean> {
+    const session = await this.sessionModel.findById(sessionId).exec();
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+    const today = new Date();
+    return today >= session.startDate && today <= session.endDate;
   }
   
 
