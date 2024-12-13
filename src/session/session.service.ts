@@ -192,5 +192,17 @@ async create(createSessionDto: CreateSessionDto): Promise<Session> {
     return today >= session.startDate && today <= session.endDate;
   }
   
+  async getOpenSession(): Promise<Session> {
+    const today = new Date();
+    const openSession = await this.sessionModel.findOne({
+      startDate: { $lte: today },
+      endDate: { $gte: today },
+    }).exec();
+  
+    if (!openSession) {
+      throw new NotFoundException('Aucune session ouverte disponible.');
+    }
+    return openSession;
+  }
 
 }

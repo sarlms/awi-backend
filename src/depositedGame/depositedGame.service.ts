@@ -2,13 +2,15 @@
 import { Injectable, NotFoundException, ConflictException, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { DepositedGame, DepositedGameDocument } from '../schemas/depositedGame.schema';
+
 import { CreateDepositedGameDto } from './dto/create-depositedGame.dto';
 import { UpdateDepositedGameDto } from './dto/update-depositedGame.dto';
-import { Session } from '../schemas/session.schema';
-import { Seller } from '../schemas/seller.schema';
-import { GameDescription } from '../schemas/gameDescription.schema';
+
 import { SessionService } from 'src/session/session.service';
+import { DepositedGame, DepositedGameDocument } from '../schemas/depositedGame.schema';
+import { Session, SessionDocument } from '../schemas/session.schema';
+import { Seller, SellerDocument } from '../schemas/seller.schema';
+import { GameDescription } from '../schemas/gameDescription.schema';
 
 @Injectable()
 export class DepositedGameService {
@@ -64,6 +66,24 @@ export class DepositedGameService {
   
     // Créer le jeu déposé
     return this.depositedGameModel.create(createDepositedGameDto);
+  }
+
+  // Nouvelle méthode pour créer un DepositedGame sans sessionId
+  async createWithoutSessionId(sellerId: string, gameDescriptionId: string, salePrice: number): Promise<DepositedGame> {
+    // Recherche d'une session ouverte
+    const openSession = await this.sessionService.getOpenSession();
+
+    // Crée un DepositedGame en utilisant l'ID de la session ouverte
+    const depositedGame = new this.depositedGameModel({
+      sessionId: openSession._id,
+      sellerId,
+      gameDescriptionId,
+      salePrice,
+      forSale: false,
+      pickedUp: false,
+    });
+
+    return depositedGame.save();
   }
 
   async findAll(): Promise<DepositedGame[]> {

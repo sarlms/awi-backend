@@ -44,6 +44,12 @@ export class DepositedGameController {
     return this.depositedGameService.create(createDepositedGameDto);
   }
 
+  @Post('createWithoutSession')
+  async createWithoutSession(@Body() body: { sellerId: string; gameDescriptionId: string; salePrice: number }) {
+    const { sellerId, gameDescriptionId, salePrice } = body;
+    return this.depositedGameService.createWithoutSessionId(sellerId, gameDescriptionId, salePrice);
+  }
+
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateDepositedGameDto: UpdateDepositedGameDto) {
     return this.depositedGameService.update(id, updateDepositedGameDto);

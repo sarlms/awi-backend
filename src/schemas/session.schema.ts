@@ -5,6 +5,7 @@ export type SessionDocument = Session & Document;
 
 @Schema()
 export class Session {
+  [x: string]: any;
   @Prop({ required: true, unique: true })  // Unique session name
   name: string;
 
