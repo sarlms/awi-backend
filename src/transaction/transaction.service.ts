@@ -88,15 +88,16 @@ export class TransactionService {
     return transaction;
   }
 
+  //SARAH : il me manquait des attributs dans cette méthode ex : nom vendeur, email etc
   async findAll(): Promise<Transaction[]> {
     return this.transactionModel
       .find()
       .populate([
-        { path: 'labelId', populate: { path: 'gameDescriptionId', select: 'name' } }, // Populate imbriqué
-        { path: 'sessionId', select: 'name' },
-        { path: 'sellerId', select: 'name' },
-        { path: 'clientId', select: 'name' },
-        { path: 'managerId', select: 'firstName lastName' },
+        { path: 'labelId', select: 'salePrice', populate: { path: 'gameDescriptionId', select: 'name' } }, // Populate imbriqué
+        { path: 'sessionId', select: 'sessionId name' },
+        { path: 'sellerId', select: 'sellerId name email' },
+        { path: 'clientId', select: 'clientId name email' },
+        { path: 'managerId', select: 'managerId firstName lastName' },
       ])
       .exec();
   }
@@ -148,7 +149,7 @@ export class TransactionService {
   
       // Calculer et ajouter le montant dû au vendeur
       const saleCommission = session.saleComission;
-      const amountToAdd = depositedGame.salePrice - depositedGame.salePrice * saleCommission;
+      const amountToAdd = depositedGame.salePrice - depositedGame.salePrice * saleCommission/100;
       seller.amountOwed += amountToAdd;
       await seller.save();
   
@@ -182,6 +183,24 @@ export class TransactionService {
   
     return transactions;
   }
+
+  //SARAH : ajout d'une méthode pour récup les transactions par vendeur
+  async findBySellerId(sellerId: string): Promise<Transaction[]> {
+    const transactions = await this.transactionModel
+      .find({ sellerId: sellerId }) // Recherche toutes les transactions associées à sellerId
+      .populate([
+        { path: 'labelId', populate: { path: 'gameDescriptionId', select: 'name' } }, // Populate imbriqué pour les jeux
+        { path: 'sessionId', select: 'name' }, // Populate session
+        { path: 'clientId', select: 'name' },  // Populate vendeur
+        { path: 'managerId', select: 'firstName lastName' }, // Populate manager
+      ])
+      .exec();
   
+    if (!transactions || transactions.length === 0) {
+      throw new NotFoundException(`No transactions found for seller with ID ${sellerId}`);
+    }
+  
+    return transactions;
+  }
   
 }

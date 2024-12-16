@@ -33,8 +33,16 @@ export class DepositFeePaymentService {
     return payment;
   }
 
+  //SARAH : il me manquait des attributs pour récup nom du vendeur etc
   async findAll(): Promise<DepositFeePayment[]> {
-    return this.depositFeePaymentModel.find().exec();
+    return this.depositFeePaymentModel
+    .find()
+    .populate([
+      { path: 'sellerId', select: 'sellerId name email' },
+      { path: 'sessionId', select: 'sessionId name email' },
+      { path: 'managerId', select: 'managerId email' },
+    ])
+    .exec();
   }
 
   async update(id: string, updateDepositFeePaymentDto: UpdateDepositFeePaymentDto): Promise<DepositFeePayment> {

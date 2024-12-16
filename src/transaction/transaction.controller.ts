@@ -52,4 +52,10 @@ export class TransactionController {
     return this.transactionService.findByClientId(clientId);
   }
 
+  //SARAH : ajout d'une méthode pour récup les transactions par vendeur
+  @Get('seller/:sellerId')
+  async findTransactionsBySellerId(@Param('sellerId') sellerId: string): Promise<Transaction[]> {
+    return this.transactionService.findBySellerId(sellerId);
+  }
+
 }
