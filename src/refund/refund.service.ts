@@ -66,8 +66,16 @@ async create(createRefundDto: CreateRefundDto, managerId: string): Promise<Refun
     return updatedRefund;
   }
 
+  //SARAH : il me manquait des attributs pour récup nom du vendeur etc
   async findAll(): Promise<Refund[]> {
-    return this.refundModel.find().exec();
+    return this.refundModel
+    .find()
+    .populate([
+      { path: 'sellerId', select: 'sellerId name email' },
+      { path: 'sessionId', select: 'sessionId name' },
+      { path: 'managerId', select: 'managerId email' },
+    ])
+    .exec();
   }
 
   async findBySellerId(sellerId: string): Promise<Refund[]> {

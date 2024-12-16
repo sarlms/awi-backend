@@ -30,6 +30,13 @@ export class DepositFeePaymentController {
     return this.depositFeePaymentService.create(createDepositFeePaymentDto, managerId);
   }
 
+  //SARAH : il manquait la méthode findAll pour la page de trésorerie globale
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async findAll() {
+    return this.depositFeePaymentService.findAll();
+  }
+
   @Get('seller/:sellerId')
   async findBySellerId(@Param('sellerId') sellerId: string) {
     const payments = await this.depositFeePaymentService.findBySellerId(sellerId);

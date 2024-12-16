@@ -176,9 +176,12 @@ async create(createSessionDto: CreateSessionDto): Promise<Session> {
     };
   }
 
+  //SARAH : cette méthode donnait toutes les sessions sauf les fermée (donc meme les à venir)
+  //il me fallait une méthode qui donne QUE la session ouverte
+  //ajout de : endDate: { $gt: today } c'est tout
   async findActiveSessions(): Promise<Session[]> {
     const today = new Date();
-    const sessions = await this.sessionModel.find({ endDate: { $gt: today } }).exec();
+    const sessions = await this.sessionModel.find({startDate: { $lte: today }, endDate: { $gt: today } }).exec();
     console.log('Sessions actives récupérées:', sessions);
     return sessions;
   }
