@@ -58,6 +58,13 @@ export class SessionController {
   async getSessionReport(@Param('sessionId') sessionId: string) {
       return this.sessionService.getSessionReport(sessionId);
   }
+
+  @Get(':id/hasDepositedGames')
+async checkHasDepositedGames(@Param('id') id: string): Promise<{ hasGames: boolean }> {
+  const hasGames = await this.sessionService.hasDepositedGames(id);
+  return { hasGames };
+}
+
   
 
 }

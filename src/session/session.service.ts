@@ -208,4 +208,9 @@ async create(createSessionDto: CreateSessionDto): Promise<Session> {
     return openSession;
   }
 
+  async hasDepositedGames(sessionId: string): Promise<boolean> {
+    const depositedGames = await this.depositedGameService.findBySessionId(sessionId);
+    return depositedGames.length > 0;
+  }
+
 }

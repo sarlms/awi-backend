@@ -96,12 +96,22 @@ export class DepositedGameService {
   }
 
   async findBySellerId(sellerId: string): Promise<DepositedGame[]> {
-    return this.depositedGameModel
-      .find({ sellerId: new Types.ObjectId(sellerId) })
-      .populate('gameDescriptionId', 'name publisher photoURL description minPlayers maxPlayers ageRange') // Inclut tous les champs nécessaires
-      .populate('sellerId', 'name email') // Inclut le nom du vendeur
+    const depositedGames = await this.depositedGameModel
+      .find({ sellerId: sellerId }) // Recherche toutes les depositedGames associées à sellerId
+      .populate([
+        { path: 'gameDescriptionId', select: 'name publisher photoURL description minPlayers maxPlayers ageRange' }, // Populate le jeu déposé
+        { path: 'sessionId', select: 'name startDate endDate' }, // Populate la session
+        { path: 'sellerId', select: 'name email' },  // Populate le vendeur
+      ])
       .exec();
+  
+    if (!depositedGames || depositedGames.length === 0) {
+      throw new NotFoundException(`No depositedGames found for seller with ID ${sellerId}`);
+    }
+  
+    return depositedGames;
   }
+  
 
   async findBySellerAndSession(sellerId: string, sessionId: string): Promise<DepositedGame[]> {
     return this.depositedGameModel
