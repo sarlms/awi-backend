@@ -13,7 +13,7 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
-  @UseGuards(LocalAuthGuard)
+
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     const token = await this.authService.generateJwtToken(loginDto);

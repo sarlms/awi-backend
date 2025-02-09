@@ -23,5 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     
     // Find the manager in the database based on the payload's id
     return { id: payload.id, email: payload.email };
+    /* const manager = await this.managerService.findOne(payload.id);
+    return manager; */
   }
 }

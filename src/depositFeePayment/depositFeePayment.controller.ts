@@ -15,12 +15,13 @@ import { CreateDepositFeePaymentDto } from './dto/create-depositFeePayment.dto';
 import { UpdateDepositFeePaymentDto } from './dto/update-depositFeePayment.dto';
 import { Request } from 'express';
 import { LocalAuthGuard } from 'src/auth/local-auth.guards';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guards';
 
 @Controller('depositFeePayment')
 export class DepositFeePaymentController {
   constructor(private readonly depositFeePaymentService: DepositFeePaymentService) {}
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(
     @Body() createDepositFeePaymentDto: CreateDepositFeePaymentDto,
@@ -31,7 +32,7 @@ export class DepositFeePaymentController {
   }
 
   //SARAH : il manquait la méthode findAll pour la page de trésorerie globale
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll() {
     return this.depositFeePaymentService.findAll();
@@ -63,13 +64,13 @@ export class DepositFeePaymentController {
     return this.depositFeePaymentService.findOne(id);
   }
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateDepositFeePaymentDto: UpdateDepositFeePaymentDto) {
     return this.depositFeePaymentService.update(id, updateDepositFeePaymentDto);
   }
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.depositFeePaymentService.remove(id);

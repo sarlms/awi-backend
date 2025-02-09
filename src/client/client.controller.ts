@@ -4,12 +4,13 @@ import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { LocalAuthGuard } from 'src/auth/local-auth.guards';
 import { AdminGuard } from 'src/guards/admin.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guards';
 
 @Controller('client')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createClientDto: CreateClientDto) {
     return this.clientService.create(createClientDto);
@@ -25,13 +26,13 @@ export class ClientController {
     return this.clientService.findOne(id);
   }
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
     return this.clientService.update(id, updateClientDto);
   }
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.clientService.remove(id);
