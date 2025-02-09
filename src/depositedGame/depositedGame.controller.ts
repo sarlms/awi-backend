@@ -1,13 +1,16 @@
 //depositedGame.controller.ts
-import { Controller, Get, Post, Body, Param, Put, Delete, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Patch, UseGuards } from '@nestjs/common';
 import { DepositedGameService } from './depositedGame.service';
 import { CreateDepositedGameDto } from './dto/create-depositedGame.dto';
 import { UpdateDepositedGameDto } from './dto/update-depositedGame.dto';
+
+import { LocalAuthGuard } from 'src/auth/local-auth.guards';
 import { DepositedGame } from '../schemas/depositedGame.schema'; // Ajout de l'import
 
 @Controller('depositedGame')
 export class DepositedGameController {
   constructor(private readonly depositedGameService: DepositedGameService) {}
+
 
   @Get('sessions') // Récupérer toutes les sessions
   async getAllSessions() {
@@ -47,37 +50,45 @@ export class DepositedGameController {
     return this.depositedGameService.findOne(id);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post()
   async create(@Body() createDepositedGameDto: CreateDepositedGameDto) {
     return this.depositedGameService.create(createDepositedGameDto);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('createWithoutSession')
   async createWithoutSession(@Body() body: { sellerId: string; gameDescriptionId: string; salePrice: number }) {
     const { sellerId, gameDescriptionId, salePrice } = body;
     return this.depositedGameService.createWithoutSessionId(sellerId, gameDescriptionId, salePrice);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateDepositedGameDto: UpdateDepositedGameDto) {
     return this.depositedGameService.update(id, updateDepositedGameDto);
   }
 
+
+  @UseGuards(LocalAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.depositedGameService.remove(id);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Patch(':id/for-sale')
   async setForSale(@Param('id') id: string) {
     return this.depositedGameService.setForSale(id);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Patch(':id/remove-from-sale')
   async removeFromSale(@Param('id') id: string) {
     return this.depositedGameService.removeFromSale(id);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Patch(':id/mark-as-picked-up')
   async markAsPickedUp(@Param('id') id: string) {
     return this.depositedGameService.markAsPickedUp(id);
