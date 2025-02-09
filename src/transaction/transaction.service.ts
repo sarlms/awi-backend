@@ -172,7 +172,7 @@ export class TransactionService {
       .populate([
         { path: 'labelId', populate: { path: 'gameDescriptionId', select: 'name' } }, // Populate imbriqué pour les jeux
         { path: 'sessionId', select: 'name' }, // Populate session
-        { path: 'sellerId', select: 'name' },  // Populate vendeur
+        { path: 'sellerId', select: 'name email' },  // Populate vendeur
         { path: 'managerId', select: 'firstName lastName' }, // Populate manager
       ])
       .exec();
@@ -191,7 +191,7 @@ export class TransactionService {
       .populate([
         { path: 'labelId', populate: { path: 'gameDescriptionId', select: 'name' } }, // Populate imbriqué pour les jeux
         { path: 'sessionId', select: 'name' }, // Populate session
-        { path: 'clientId', select: 'name' },  // Populate vendeur
+        { path: 'clientId', select: 'name email' },  // Populate vendeur
         { path: 'managerId', select: 'firstName lastName' }, // Populate manager
       ])
       .exec();

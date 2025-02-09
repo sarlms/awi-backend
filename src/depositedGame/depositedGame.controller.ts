@@ -3,6 +3,7 @@ import { Controller, Get, Post, Body, Param, Put, Delete, Patch } from '@nestjs/
 import { DepositedGameService } from './depositedGame.service';
 import { CreateDepositedGameDto } from './dto/create-depositedGame.dto';
 import { UpdateDepositedGameDto } from './dto/update-depositedGame.dto';
+import { DepositedGame } from '../schemas/depositedGame.schema'; // Ajout de l'import
 
 @Controller('depositedGame')
 export class DepositedGameController {
@@ -22,6 +23,13 @@ export class DepositedGameController {
   async findBySessionId(@Param('sessionId') sessionId: string) {
     return this.depositedGameService.findBySessionId(sessionId);
   }
+
+  //SARAH : ajout d'une méthode pour récup les transactions par vendeur
+  @Get('seller/:sellerId')
+  async findDepositedGamesBySellerId(@Param('sellerId') sellerId: string): Promise<DepositedGame[]> {
+    return this.depositedGameService.findBySellerId(sellerId);
+  }
+
 
   @Get() // Récupérer tous les jeux déposés
   async findAll() {

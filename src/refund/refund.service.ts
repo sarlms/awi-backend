@@ -79,8 +79,24 @@ async create(createRefundDto: CreateRefundDto, managerId: string): Promise<Refun
   }
 
   async findBySellerId(sellerId: string): Promise<Refund[]> {
-    return this.refundModel.find({ sellerId }).exec();
+    const sellerObjectId = new Types.ObjectId(sellerId);
+
+    return this.refundModel
+    .find({
+      $or: [
+        { sellerId: sellerObjectId },  // Si stocké comme ObjectId
+        { sellerId: sellerId }         // Si stocké comme string
+      ]
+    })
+    .populate([
+      { path: 'sellerId', select: 'sellerId name email' },
+      { path: 'sessionId', select: 'sessionId name' },
+      { path: 'managerId', select: 'managerId email' },
+    ])
+    .exec();
   }
+
+
 
   async findBySellerAndSession(sellerId: string, sessionId: string): Promise<Refund[]> {
     return this.refundModel.find({ sellerId, sessionId }).exec();
