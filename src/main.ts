@@ -1,5 +1,3 @@
-
-// main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
@@ -13,9 +11,12 @@ async function bootstrap() {
 
   // Activer CORS avec des configurations spécifiques
   app.enableCors({
-    origin: 'http://localhost:4200', // L'origine de votre application Angular
+    origin: [
+      'http://localhost:4200',  // Development Angular app
+      'https://ahoui-front.cluster-ig4.igpolytech.fr' // Deployed frontend
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
+    credentials: true, // Allow cookies and auth headers
   });
 
   await app.listen(PORT);
