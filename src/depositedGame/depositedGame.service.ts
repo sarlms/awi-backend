@@ -61,8 +61,10 @@ export class DepositedGameService {
   
     // Initialiser les champs `sold`, `forSale`, `pickedUp` à `false`
     createDepositedGameDto.sold = false;
-    createDepositedGameDto.forSale = false;
     createDepositedGameDto.pickedUp = false;
+
+    // ✅ Conserver la valeur envoyée pour `forSale`
+    createDepositedGameDto.forSale = createDepositedGameDto.forSale ?? false;
   
     // Créer le jeu déposé
     return this.depositedGameModel.create(createDepositedGameDto);
